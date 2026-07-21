@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Draxeliora Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+font-family:Arial,sans-serif;
+padding:20px;
+max-width:500px;
+margin:auto;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin:10px 0;
+}
+
+button{
+padding:12px;
+background:#ff9900;
+color:white;
+border:none;
+width:100%;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Admin Panel</h2>
+
+<input id="title" placeholder="Product Title">
+
+<input id="image" placeholder="Image URL">
+
+<input id="link" placeholder="Affiliate Link">
+
+<textarea id="desc" placeholder="Description"></textarea>
+
+<button onclick="saveProduct()">Add Product</button>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+addDoc
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
+authDomain: "draxeliora-store.firebaseapp.com",
+projectId: "draxeliora-store",
+storageBucket: "draxeliora-store.firebasestorage.app",
+messagingSenderId: "119154228798",
+appId: "1:119154228798:web:1c45579a613461b9735b6f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.saveProduct = async () => {
+
+await addDoc(collection(db,"products"),{
+
+title:document.getElementById("title").value,
+
+image:document.getElementById("image").value,
+
+link:document.getElementById("link").value,
+
+desc:document.getElementById("desc").value
+
+});
+
+alert("Product Added!");
+
+};
+
+</script>
+
+</body>
+</html>
