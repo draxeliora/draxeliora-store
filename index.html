@@ -53,8 +53,23 @@ cursor:pointer;
 </div>
 
 <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+const firebaseConfig = {
+apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
+  authDomain: "draxeliora-store.firebaseapp.com",
+  projectId: "draxeliora-store",
+  storageBucket: "draxeliora-store.firebasestorage.app",
+  messagingSenderId: "119154228798",
+  appId: "1:119154228798:web:1c45579a613461b9735b6f",
+  measurementId: "G-K06CBX12Z9"
+};
+  const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 </script>
-
 </body>
 </html>
