@@ -4,72 +4,93 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Draxeliora Store</title>
+
 <style>
 body{
-font-family:Arial,sans-serif;
-background:#f5f5f5;
-margin:0;
-padding:20px;
-text-align:center;
+    font-family:Arial,sans-serif;
+    background:#f5f5f5;
+    margin:0;
+    padding:20px;
+    text-align:center;
 }
+
 h1{
-color:#222;
+    color:#222;
 }
+
 .card{
-background:#fff;
-padding:20px;
-border-radius:12px;
-max-width:350px;
-margin:20px auto;
-box-shadow:0 4px 10px rgba(0,0,0,.1);
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    max-width:350px;
+    margin:20px auto;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
 }
+
 img{
-width:100%;
-border-radius:10px;
+    width:100%;
+    border-radius:10px;
 }
+
 button{
-background:#ff9900;
-color:#fff;
-border:none;
-padding:12px 20px;
-border-radius:8px;
-font-size:16px;
-cursor:pointer;
+    background:#ff9900;
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
 }
 </style>
 </head>
+
 <body>
 
 <h1>🛍️ Draxeliora Store</h1>
 
 <div class="card">
-<img src="https://via.placeholder.com/300x300.png?text=Your+Product" alt="Product">
-<h2>Product Name</h2>
-<p>Best Amazon Deal</p>
+    <img src="https://via.placeholder.com/300x300.png?text=Your+Product" alt="Product">
+    <h2>Product Name</h2>
+    <p>Best Amazon Deal</p>
 
-<a href="https://amazon.com" target="_blank">
-<button>Buy on Amazon</button>
-</a>
+    <a href="https://amazon.com" target="_blank">
+        <button>Buy on Amazon</button>
+    </a>
 </div>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import {
+    getFirestore,
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
 const firebaseConfig = {
-apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
-  authDomain: "draxeliora-store.firebaseapp.com",
-  projectId: "draxeliora-store",
-  storageBucket: "draxeliora-store.firebasestorage.app",
-  messagingSenderId: "119154228798",
-  appId: "1:119154228798:web:1c45579a613461b9735b6f",
-  measurementId: "G-K06CBX12Z9"
+    apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
+    authDomain: "draxeliora-store.firebaseapp.com",
+    projectId: "draxeliora-store",
+    storageBucket: "draxeliora-store.firebasestorage.app",
+    messagingSenderId: "119154228798",
+    appId: "1:119154228798:web:1c45579a613461b9735b6f",
+    measurementId: "G-K06CBX12Z9"
 };
-  const app = initializeApp(firebaseConfig);
+
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+const querySnapshot = await getDocs(collection(db, "products"));
+
+querySnapshot.forEach((doc) => {
+    console.log(doc.id, doc.data());
+});
+
 </script>
+
 </body>
 </html>
