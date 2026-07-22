@@ -3,343 +3,475 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Draxeliora Store | Curated Picks You'll Love</title>
-<meta name="description" content="Draxeliora Store — a curated collection of hand-picked products. Discover quality finds across every category, reviewed and recommended." />
-<meta name="keywords" content="Draxeliora, Draxeliora Store, online store, curated products, affiliate store, best products" />
-<meta name="robots" content="index, follow" />
-<meta name="author" content="Draxeliora Store" />
-<meta name="theme-color" content="#0d0d0f" />
-<link rel="canonical" href="https://draxeliora-store.web.app/" />
-
-<!-- Open Graph -->
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="Draxeliora Store" />
-<meta property="og:title" content="Draxeliora Store | Curated Picks You'll Love" />
-<meta property="og:description" content="A curated collection of hand-picked products, reviewed and recommended by the Draxeliora team." />
-<meta property="og:url" content="https://draxeliora-store.web.app/" />
-<meta property="og:image" content="/icons/og-cover.jpg" />
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Draxeliora Store | Curated Picks You'll Love" />
-<meta name="twitter:description" content="A curated collection of hand-picked products, reviewed and recommended." />
-<meta name="twitter:image" content="/icons/og-cover.jpg" />
-
-<!-- Favicons -->
+<title>Draxeliora Admin Panel</title>
+<meta name="robots" content="noindex, nofollow" />
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
-<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-
-<!-- PWA -->
 <link rel="manifest" href="/manifest.json" />
-
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-
-<!-- Google Analytics 4
-     Replace G-XXXXXXXXXX below with your real GA4 Measurement ID.
-     Find it in GA4 > Admin > Data Streams > your web stream. -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){ dataLayer.push(arguments); }
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
-
 <style>
   :root{
-    --bg:#0b0b0d;
-    --bg-alt:#131316;
-    --card:#18181c;
-    --border:#26262b;
+    --bg:#0d0d0f;
+    --bg-alt:#17171a;
+    --card:#1c1c20;
+    --border:#2a2a2f;
     --orange:#ff7a1a;
-    --orange-light:#ffb066;
     --orange-dark:#e0650a;
-    --text:#f3f3f4;
-    --text-dim:#9a9aa2;
-    --radius:16px;
+    --text:#f2f2f2;
+    --text-dim:#a0a0a6;
+    --danger:#ff4747;
     --success:#2ecc71;
-    --danger:#ff4d4d;
     --info:#3aa0ff;
+    --warning:#ffb020;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html{scroll-behavior:smooth;}
   body{
+    font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background:var(--bg);
     color:var(--text);
-    font-family:'Inter', sans-serif;
     min-height:100vh;
-    display:flex;
-    flex-direction:column;
     -webkit-font-smoothing:antialiased;
   }
-  h1,h2,h3,.logo{font-family:'Poppins', sans-serif;}
-  a{text-decoration:none;color:inherit;}
-  img{max-width:100%;display:block;}
-  ::-webkit-scrollbar{width:8px;}
+  a{color:var(--orange);}
+  ::-webkit-scrollbar{width:8px;height:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
-  /* ---------- Fade-in on scroll ---------- */
-  .fade-in{
-    opacity:0;
-    transform:translateY(18px);
-    transition:opacity .55s ease, transform .55s ease;
+  #loadingOverlay{
+    position:fixed;inset:0;
+    background:rgba(10,10,12,0.92);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;
+    flex-direction:column;
+    gap:14px;
   }
-  .fade-in.visible{opacity:1;transform:translateY(0);}
+  .spinner{
+    width:48px;height:48px;
+    border:5px solid var(--border);
+    border-top:5px solid var(--orange);
+    border-radius:50%;
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #loadingOverlay p{color:var(--text-dim);font-size:14px;letter-spacing:0.5px;}
+  .hidden{display:none !important;}
 
-  /* ---------- Header ---------- */
-  header.site-header{
-    position:sticky;
-    top:0;
-    z-index:200;
-    background:rgba(11,11,13,0.85);
-    backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--border);
+  #loginScreen{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
   }
-  .header-inner{
-    max-width:1280px;
-    margin:0 auto;
-    padding:18px 24px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:24px;
-    flex-wrap:wrap;
-  }
-  .logo{
-    font-size:26px;
-    font-weight:800;
-    letter-spacing:0.5px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    white-space:nowrap;
-  }
-  .logo .dot{color:var(--orange);}
-  .logo-tag{
-    font-size:11px;
-    font-weight:500;
-    color:var(--text-dim);
-    letter-spacing:2px;
-    text-transform:uppercase;
-    margin-left:6px;
-    display:none;
-  }
-  @media(min-width:640px){.logo-tag{display:inline;}}
-
-  .header-search{
-    flex:1;
-    max-width:460px;
-    min-width:200px;
-    position:relative;
-  }
-  .header-search input{
-    width:100%;
-    background:var(--card);
+  .login-box{
+    background:var(--bg-alt);
     border:1px solid var(--border);
-    color:var(--text);
-    padding:12px 16px 12px 42px;
-    border-radius:999px;
-    font-size:14px;
-    font-family:inherit;
-    outline:none;
-    transition:border-color .2s ease, box-shadow .2s ease;
-  }
-  .header-search input:focus{
-    border-color:var(--orange);
-    box-shadow:0 0 0 3px rgba(255,122,26,0.15);
-  }
-  .header-search svg{
-    position:absolute;
-    left:15px;top:50%;
-    transform:translateY(-50%);
-    width:17px;height:17px;
-    color:var(--text-dim);
-    pointer-events:none;
-  }
-
-  /* ---------- Hero ---------- */
-  .hero{
-    max-width:1280px;
-    margin:0 auto;
-    padding:64px 24px 44px;
+    border-radius:16px;
+    padding:48px 36px;
     text-align:center;
+    max-width:400px;
+    width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    animation:fadeUp .4s ease;
   }
-  .hero h1{
-    font-size:clamp(28px, 5vw, 48px);
-    font-weight:800;
-    line-height:1.15;
-    margin-bottom:14px;
-    letter-spacing:-0.5px;
-  }
-  .hero h1 span{
-    background:linear-gradient(135deg, var(--orange), var(--orange-light));
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .login-box h1{
+    font-size:26px;
+    margin-bottom:6px;
+    background:linear-gradient(135deg,var(--orange),#ffb066);
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
   }
-  .hero p{
-    color:var(--text-dim);
-    font-size:16.5px;
-    max-width:560px;
-    margin:0 auto;
-    line-height:1.65;
+  .login-box p{color:var(--text-dim);margin-bottom:28px;font-size:14px;}
+  .google-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    background:#fff;color:#1f1f1f;
+    border:none;
+    padding:12px 22px;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    width:100%;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .google-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.35);}
+  .google-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+  .google-btn svg{width:20px;height:20px;}
+
+  #accessDenied{
+    display:none;
+    margin-top:20px;
+    background:rgba(255,71,71,0.1);
+    border:1px solid var(--danger);
+    color:var(--danger);
+    padding:14px;
+    border-radius:8px;
+    font-size:14px;
   }
 
-  /* ---------- Main / Grid ---------- */
-  main{
-    flex:1;
-    max-width:1280px;
-    width:100%;
-    margin:0 auto;
-    padding:10px 24px 70px;
-  }
-  .section-heading{
+  #adminPanel{display:none;min-height:100vh;}
+  header.topbar{
+    background:var(--bg-alt);
+    border-bottom:1px solid var(--border);
+    padding:16px 24px;
     display:flex;
-    align-items:baseline;
+    align-items:center;
     justify-content:space-between;
-    margin-bottom:24px;
+    gap:16px;
     flex-wrap:wrap;
-    gap:10px;
+    position:sticky;
+    top:0;
+    z-index:100;
   }
-  .section-heading h2{
-    font-size:23px;
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-size:20px;font-weight:700;
+  }
+  .brand span{color:var(--orange);}
+  .user-info{
+    display:flex;align-items:center;gap:12px;
+    font-size:14px;
+    color:var(--text-dim);
+  }
+  .user-info strong{color:var(--text);}
+  .btn{
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    transition:transform .12s ease, opacity .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn:active{transform:translateY(0) scale(0.98);}
+  .btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+  .btn-orange{background:var(--orange);color:#111;}
+  .btn-orange:hover{background:var(--orange-dark);box-shadow:0 6px 16px rgba(255,122,26,0.25);}
+  .btn-outline{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text);
+  }
+  .btn-outline:hover{border-color:var(--orange);color:var(--orange);}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-danger:hover{background:#e02f2f;}
+  .btn-small{padding:7px 12px;font-size:13px;}
+
+  main{
+    max-width:1240px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+
+  .section-title{
+    font-size:18px;
+    margin-bottom:16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .section-title::before{
+    content:"";
+    width:4px;height:18px;
+    background:var(--orange);
+    border-radius:2px;
+    display:inline-block;
+  }
+
+  /* ---------- Dashboard ---------- */
+  .dashboard-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:18px;
+    margin-bottom:36px;
+  }
+  .stat-card{
+    background:linear-gradient(145deg, var(--card), var(--bg-alt));
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    position:relative;
+    overflow:hidden;
+    transition:transform .2s ease, border-color .2s ease;
+  }
+  .stat-card:hover{transform:translateY(-3px);border-color:var(--orange);}
+  .stat-card .stat-icon{
+    width:38px;height:38px;
+    border-radius:10px;
+    background:rgba(255,122,26,0.12);
+    color:var(--orange);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:6px;
+  }
+  .stat-card .stat-icon svg{width:20px;height:20px;}
+  .stat-card .stat-label{
+    font-size:12.5px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+  }
+  .stat-card .stat-value{
+    font-size:26px;
+    font-weight:800;
+    line-height:1.2;
+  }
+  .stat-card .stat-sub{
+    font-size:12.5px;
+    color:var(--text-dim);
+    margin-top:2px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .stat-skel{
+    height:26px;width:60%;
+    border-radius:6px;
+    background:linear-gradient(100deg, var(--bg-alt) 30%, #232327 50%, var(--bg-alt) 70%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+  /* ---------- Top Products Analytics ---------- */
+  .analytics-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px;
+    margin-bottom:36px;
+  }
+  .top-product-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:11px 0;
+    border-bottom:1px solid var(--border);
+    font-size:14px;
+  }
+  .top-product-row:last-child{border-bottom:none;}
+  .top-product-row .rank{
+    color:var(--orange);
     font-weight:700;
-    letter-spacing:-0.3px;
+    width:22px;
+    flex-shrink:0;
   }
-  #resultCount{
+  .top-product-row .name{
+    flex:1;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .top-product-row .count{
+    color:var(--text-dim);
+    font-variant-numeric:tabular-nums;
+    flex-shrink:0;
+  }
+  .analytics-empty{
     color:var(--text-dim);
     font-size:13.5px;
+    text-align:center;
+    padding:20px 0;
   }
 
+  /* ---------- Form Card ---------- */
+  .form-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:24px;
+    margin-bottom:36px;
+  }
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-group.full{grid-column:1 / -1;}
+  label{font-size:13px;color:var(--text-dim);font-weight:600;}
+  input[type="text"],input[type="url"],textarea{
+    background:var(--bg);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14px;
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+    font-family:inherit;
+  }
+  input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,122,26,0.12);}
+  textarea{resize:vertical;min-height:80px;}
+  .form-actions{
+    margin-top:18px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .search-box{
+    flex:1;
+    min-width:220px;
+    max-width:360px;
+    position:relative;
+  }
+  .search-box input{
+    width:100%;
+    padding:10px 14px 10px 36px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    font-size:14px;
+  }
+  .search-box input:focus{outline:none;border-color:var(--orange);}
+  .search-box svg{
+    position:absolute;
+    left:10px;top:50%;
+    transform:translateY(-50%);
+    width:16px;height:16px;
+    color:var(--text-dim);
+  }
+  .product-count{color:var(--text-dim);font-size:14px;}
+
+  /* ---------- Product Grid ---------- */
   .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
-    gap:24px;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:20px;
   }
-
   .product-card{
     background:var(--card);
     border:1px solid var(--border);
-    border-radius:var(--radius);
+    border-radius:14px;
     overflow:hidden;
     display:flex;
     flex-direction:column;
-    transition:transform .28s cubic-bezier(.22,1,.36,1), border-color .28s ease, box-shadow .28s ease;
+    transition:border-color .18s ease, transform .18s ease;
   }
-  .product-card:hover{
-    transform:translateY(-7px);
-    border-color:var(--orange);
-    box-shadow:0 18px 44px rgba(255,122,26,0.14);
-  }
-  .card-image{
+  .product-card:hover{border-color:var(--orange);transform:translateY(-3px);}
+  .product-image{
     width:100%;
-    aspect-ratio:1 / 1;
+    height:170px;
     background:var(--bg-alt);
     overflow:hidden;
-    position:relative;
   }
-  .card-image img{
-    width:100%;
-    height:100%;
+  .product-image img{
+    width:100%;height:100%;
     object-fit:cover;
-    transition:transform .45s ease;
+    display:block;
   }
-  .product-card:hover .card-image img{transform:scale(1.07);}
-
-  .card-body{
-    padding:18px;
+  .product-body{
+    padding:16px;
     display:flex;
     flex-direction:column;
     gap:8px;
     flex:1;
   }
-  .card-body h3{
-    font-size:16px;
-    font-weight:600;
-    line-height:1.35;
-  }
-  .card-body p{
-    font-size:13.5px;
+  .product-body h3{font-size:16px;line-height:1.3;}
+  .product-body p{
+    font-size:13px;
     color:var(--text-dim);
-    line-height:1.55;
+    line-height:1.5;
     flex:1;
     display:-webkit-box;
     -webkit-line-clamp:3;
     -webkit-box-orient:vertical;
     overflow:hidden;
   }
-
-  .buy-btn{
-    margin-top:8px;
+  .click-badge{
     display:inline-flex;
     align-items:center;
-    justify-content:center;
-    gap:8px;
-    background:linear-gradient(135deg, var(--orange), var(--orange-dark));
-    color:#111;
-    font-weight:700;
-    font-size:14px;
-    padding:12px 16px;
-    border-radius:10px;
-    transition:filter .2s ease, transform .15s ease, box-shadow .2s ease;
-    position:relative;
-    overflow:hidden;
+    gap:5px;
+    font-size:11.5px;
+    color:var(--orange);
+    background:rgba(255,122,26,0.1);
+    padding:3px 8px;
+    border-radius:999px;
+    width:fit-content;
   }
-  .buy-btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,122,26,0.25);}
-  .buy-btn:active{transform:translateY(0) scale(0.97);}
-  .buy-btn svg{width:16px;height:16px;}
+  .affiliate-link{
+    font-size:13px;
+    word-break:break-all;
+    color:var(--orange);
+    text-decoration:none;
+  }
+  .affiliate-link:hover{text-decoration:underline;}
+  .product-actions{
+    display:flex;
+    gap:10px;
+    margin-top:8px;
+  }
+  .product-actions .btn{flex:1;}
 
-  /* ---------- Skeleton Loading ---------- */
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--text-dim);
+  }
+
+  /* ---------- Skeleton (Admin product grid) ---------- */
   .skeleton-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
-    gap:24px;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:20px;
   }
   .skeleton-card{
     background:var(--card);
     border:1px solid var(--border);
-    border-radius:var(--radius);
+    border-radius:14px;
     overflow:hidden;
   }
   .skeleton-img{
-    width:100%;
-    aspect-ratio:1/1;
-    background:linear-gradient(100deg, var(--bg-alt) 30%, #202024 50%, var(--bg-alt) 70%);
+    width:100%;height:170px;
+    background:linear-gradient(100deg, var(--bg-alt) 30%, #232327 50%, var(--bg-alt) 70%);
     background-size:200% 100%;
     animation:shimmer 1.4s ease-in-out infinite;
   }
   .skeleton-line{
-    height:12px;
-    border-radius:6px;
-    margin:16px 16px 0;
-    background:linear-gradient(100deg, var(--bg-alt) 30%, #202024 50%, var(--bg-alt) 70%);
+    height:12px;border-radius:6px;margin:16px 16px 0;
+    background:linear-gradient(100deg, var(--bg-alt) 30%, #232327 50%, var(--bg-alt) 70%);
     background-size:200% 100%;
     animation:shimmer 1.4s ease-in-out infinite;
   }
-  .skeleton-line.short{width:60%;}
-  .skeleton-line.btn{height:38px;border-radius:10px;margin:16px;}
-  @keyframes shimmer{
-    0%{background-position:200% 0;}
-    100%{background-position:-200% 0;}
-  }
+  .skeleton-line.short{width:55%;}
+  .skeleton-line.btns{height:34px;border-radius:8px;margin:16px;}
 
-  /* ---------- Empty State ---------- */
-  #emptyState{
+  /* ---------- Modal (Edit) ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.6);
     display:none;
-    flex-direction:column;
     align-items:center;
-    text-align:center;
-    padding:70px 20px;
-    color:var(--text-dim);
-    gap:10px;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
   }
-  #emptyState svg{width:52px;height:52px;color:var(--border);margin-bottom:6px;}
-  #emptyState h3{color:var(--text);font-size:18px;}
-
-  .hidden{display:none !important;}
+  .modal-overlay.active{display:flex;}
+  .modal-box{
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:26px;
+    width:100%;
+    max-width:520px;
+    max-height:90vh;
+    overflow-y:auto;
+    animation:fadeUp .25s ease;
+  }
+  .modal-box h2{margin-bottom:18px;font-size:19px;}
+  .modal-box .form-grid{grid-template-columns:1fr;}
 
   /* ---------- Toasts ---------- */
   #toastContainer{
@@ -366,84 +498,21 @@
     max-width:340px;
     width:100%;
     box-shadow:0 12px 30px rgba(0,0,0,0.4);
-    display:flex;
-    align-items:center;
-    gap:10px;
     animation:toastIn .3s ease forwards;
   }
   .toast.success{border-left-color:var(--success);}
   .toast.error{border-left-color:var(--danger);}
-  .toast.warning{border-left-color:var(--orange);}
+  .toast.warning{border-left-color:var(--warning);}
   .toast.leaving{animation:toastOut .25s ease forwards;}
   @keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
   @keyframes toastOut{to{opacity:0;transform:translateX(20px);}}
 
-  /* ---------- Footer ---------- */
-  footer.site-footer{
-    border-top:1px solid var(--border);
-    background:var(--bg-alt);
-    margin-top:auto;
-  }
-  .footer-inner{
-    max-width:1280px;
-    margin:0 auto;
-    padding:44px 24px 28px;
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-  }
-  .footer-top{
-    display:flex;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:20px;
-  }
-  .footer-brand .logo{font-size:20px;}
-  .footer-brand p{
-    color:var(--text-dim);
-    font-size:13.5px;
-    margin-top:8px;
-    max-width:340px;
-    line-height:1.6;
-  }
-  .footer-links{
-    display:flex;
-    gap:40px;
-    flex-wrap:wrap;
-  }
-  .footer-col h4{
-    font-size:13px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:var(--text-dim);
-    margin-bottom:12px;
-  }
-  .footer-col a{
-    display:block;
-    font-size:13.5px;
-    color:var(--text);
-    opacity:0.85;
-    margin-bottom:9px;
-    transition:color .15s ease;
-  }
-  .footer-col a:hover{color:var(--orange);opacity:1;}
-  .footer-bottom{
-    border-top:1px solid var(--border);
-    padding-top:18px;
-    display:flex;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:10px;
-    font-size:12.5px;
-    color:var(--text-dim);
-  }
-  .footer-bottom strong{color:var(--orange);}
-
-  @media(max-width:600px){
-    .hero{padding:44px 20px 32px;}
-    .header-inner{padding:14px 16px;}
-    main{padding:6px 16px 50px;}
-    .grid, .skeleton-grid{gap:16px;}
+  @media(max-width:700px){
+    .form-grid{grid-template-columns:1fr;}
+    header.topbar{padding:14px 16px;}
+    main{padding:20px 14px 50px;}
+    .toolbar{flex-direction:column;align-items:stretch;}
+    .search-box{max-width:none;}
     #toastContainer{left:12px;right:12px;bottom:12px;align-items:stretch;}
     .toast{max-width:none;}
   }
@@ -451,89 +520,171 @@
 </head>
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <a href="#" class="logo" aria-label="Draxeliora Store home">
-      Draxeliora<span class="dot">.</span>
-      <span class="logo-tag">Store</span>
-    </a>
-    <div class="header-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Search products..." aria-label="Search products" />
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <p>Loading Draxeliora Admin...</p>
+</div>
+
+<div id="loginScreen" class="hidden">
+  <div class="login-box">
+    <h1>Draxeliora <span>Admin</span></h1>
+    <p>Sign in with your authorized Google account to continue.</p>
+    <button class="google-btn" id="googleLoginBtn">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.6 0-14.2 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.3 26.9 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.3-4.1 5.7l6.6 5.4C41.4 36.4 44 30.8 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+      Sign in with Google
+    </button>
+    <div id="accessDenied">🚫 Access Denied — this account is not authorized to access the admin panel.</div>
+  </div>
+</div>
+
+<div id="adminPanel">
+  <header class="topbar">
+    <div class="brand">Draxeliora <span>Admin</span></div>
+    <div class="user-info">
+      Logged in as <strong id="userEmail"></strong>
+      <button class="btn btn-outline btn-small" id="logoutBtn">Logout</button>
     </div>
-  </div>
-</header>
+  </header>
 
-<section class="hero fade-in">
-  <h1>Curated finds, <span>chosen with care.</span></h1>
-  <p>Explore our hand-picked selection of quality products — every item reviewed and recommended by the Draxeliora team.</p>
-</section>
-
-<main>
-  <div class="section-heading">
-    <h2>Our Products</h2>
-    <span id="resultCount"></span>
-  </div>
-
-  <div class="skeleton-grid" id="skeletonGrid">
-    <!-- skeleton cards injected by JS -->
-  </div>
-
-  <div id="emptyState">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m-10 0a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4z"/></svg>
-    <h3 id="emptyTitle">No products found</h3>
-    <p id="emptySubtitle">Check back soon — new items are on the way.</p>
-  </div>
-
-  <div class="grid hidden" id="productsGrid"></div>
-</main>
-
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <div class="logo">Draxeliora<span class="dot">.</span></div>
-        <p>Draxeliora Store curates quality products across every category so you can shop with confidence.</p>
+  <main>
+    <!-- Dashboard -->
+    <h2 class="section-title">Dashboard</h2>
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        </div>
+        <div class="stat-label">Total Products</div>
+        <div class="stat-value" id="statTotalProducts"><span class="stat-skel"></span></div>
       </div>
-      <div class="footer-links">
-        <div class="footer-col">
-          <h4>Store</h4>
-          <a href="#">All Products</a>
-          <a href="#">New Arrivals</a>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         </div>
-        <div class="footer-col">
-          <h4>Company</h4>
-          <a href="#">About Us</a>
-          <a href="#">Contact</a>
+        <div class="stat-label">Total Affiliate Clicks</div>
+        <div class="stat-value" id="statTotalClicks"><span class="stat-skel"></span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.8L12 16.9 5.8 20.3l1.6-6.8L2.2 8.9l6.9-.6z"/></svg>
         </div>
-        <div class="footer-col">
-          <h4>Legal</h4>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Affiliate Disclosure</a>
+        <div class="stat-label">Most Clicked Product</div>
+        <div class="stat-value" id="statMostClicked" style="font-size:16px;"><span class="stat-skel"></span></div>
+        <div class="stat-sub" id="statMostClickedCount"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
         </div>
+        <div class="stat-label">Last Click</div>
+        <div class="stat-value" id="statLastClick" style="font-size:16px;"><span class="stat-skel"></span></div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span>&copy; <span id="year"></span> Draxeliora Store. All rights reserved.</span>
-      <span>Made with <strong>♥</strong> for great products.</span>
+
+    <!-- Top Products Analytics -->
+    <h2 class="section-title">Top Products by Clicks</h2>
+    <div class="analytics-card">
+      <div id="topProductsList">
+        <div class="analytics-empty">Loading analytics...</div>
+      </div>
     </div>
+
+    <!-- Add / Edit Product Form -->
+    <h2 class="section-title" id="formTitle">Add New Product</h2>
+    <section class="form-card">
+      <form id="productForm">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="titleInput">Product Title</label>
+            <input type="text" id="titleInput" placeholder="e.g. Wireless Noise-Cancelling Headphones" required />
+          </div>
+          <div class="form-group full">
+            <label for="imageInput">Image URL</label>
+            <input type="url" id="imageInput" placeholder="https://example.com/image.jpg" required />
+          </div>
+          <div class="form-group full">
+            <label for="linkInput">Affiliate Link</label>
+            <input type="url" id="linkInput" placeholder="https://affiliate-link.com/product" required />
+          </div>
+          <div class="form-group full">
+            <label for="descInput">Description</label>
+            <textarea id="descInput" placeholder="Short product description..." required></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-orange" id="submitBtn">Add Product</button>
+          <button type="button" class="btn btn-outline hidden" id="cancelEditBtn">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search products..." />
+      </div>
+      <div class="product-count" id="productCount">0 products</div>
+    </div>
+
+    <h2 class="section-title">All Products</h2>
+    <div class="skeleton-grid" id="productsSkeleton">
+      <!-- skeleton cards injected by JS -->
+    </div>
+    <div class="grid hidden" id="productsGrid"></div>
+    <div class="empty-state hidden" id="emptyState">No products found.</div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="editModalOverlay">
+  <div class="modal-box">
+    <h2>Edit Product</h2>
+    <form id="editForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="editTitle">Product Title</label>
+          <input type="text" id="editTitle" required />
+        </div>
+        <div class="form-group">
+          <label for="editImage">Image URL</label>
+          <input type="url" id="editImage" required />
+        </div>
+        <div class="form-group">
+          <label for="editLink">Affiliate Link</label>
+          <input type="url" id="editLink" required />
+        </div>
+        <div class="form-group">
+          <label for="editDesc">Description</label>
+          <textarea id="editDesc" required></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-orange" id="editSaveBtn">Save Changes</button>
+        <button type="button" class="btn btn-outline" id="editCancelBtn">Cancel</button>
+      </div>
+    </form>
   </div>
-</footer>
+</div>
 
 <div id="toastContainer" aria-live="polite"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {
     getFirestore,
     collection,
-    onSnapshot,
-    doc,
-    getDoc,
-    setDoc,
+    addDoc,
     updateDoc,
-    increment,
-    serverTimestamp
+    deleteDoc,
+    doc,
+    onSnapshot
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
   // ---------------- Firebase Config (unchanged) ----------------
@@ -547,192 +698,66 @@
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
   const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
-  // Same collection as before — untouched.
+  const ADMIN_EMAIL = "businessidea100067@gmail.com";
+
+  // Same collection name as index.html — unchanged.
   const PRODUCTS_COLLECTION = "products";
-  // New collection, additive only. Does not affect "products" documents.
-  const ANALYTICS_DOC = doc(db, "analytics", "summary");
+  // New collection used only for click analytics. Additive — does not
+  // touch or restructure the "products" collection.
+  const ANALYTICS_COLLECTION = "analytics";
+  const ANALYTICS_DOC_ID = "summary";
 
-  // ---------------- DOM ----------------
-  const skeletonGrid = document.getElementById("skeletonGrid");
-  const emptyState = document.getElementById("emptyState");
-  const productsGrid = document.getElementById("productsGrid");
-  const resultCount = document.getElementById("resultCount");
+  // ---------------- DOM Elements ----------------
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const loginScreen = document.getElementById("loginScreen");
+  const adminPanel = document.getElementById("adminPanel");
+  const googleLoginBtn = document.getElementById("googleLoginBtn");
+  const accessDenied = document.getElementById("accessDenied");
+  const userEmailEl = document.getElementById("userEmail");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  const formTitle = document.getElementById("formTitle");
+  const productForm = document.getElementById("productForm");
+  const titleInput = document.getElementById("titleInput");
+  const imageInput = document.getElementById("imageInput");
+  const linkInput = document.getElementById("linkInput");
+  const descInput = document.getElementById("descInput");
+  const submitBtn = document.getElementById("submitBtn");
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
+
   const searchInput = document.getElementById("searchInput");
-  const emptyTitle = document.getElementById("emptyTitle");
-  const emptySubtitle = document.getElementById("emptySubtitle");
+  const productCount = document.getElementById("productCount");
+  const productsGrid = document.getElementById("productsGrid");
+  const productsSkeleton = document.getElementById("productsSkeleton");
+  const emptyState = document.getElementById("emptyState");
+
+  const editModalOverlay = document.getElementById("editModalOverlay");
+  const editForm = document.getElementById("editForm");
+  const editTitle = document.getElementById("editTitle");
+  const editImage = document.getElementById("editImage");
+  const editLink = document.getElementById("editLink");
+  const editDesc = document.getElementById("editDesc");
+  const editCancelBtn = document.getElementById("editCancelBtn");
+
+  const statTotalProducts = document.getElementById("statTotalProducts");
+  const statTotalClicks = document.getElementById("statTotalClicks");
+  const statMostClicked = document.getElementById("statMostClicked");
+  const statMostClickedCount = document.getElementById("statMostClickedCount");
+  const statLastClick = document.getElementById("statLastClick");
+  const topProductsList = document.getElementById("topProductsList");
+
   const toastContainer = document.getElementById("toastContainer");
 
-  document.getElementById("year").textContent = new Date().getFullYear();
-
-  // Render skeleton placeholders immediately
-  function renderSkeletons(count = 8) {
-    skeletonGrid.innerHTML = Array.from({ length: count })
-      .map(
-        () => `
-      <div class="skeleton-card">
-        <div class="skeleton-img"></div>
-        <div class="skeleton-line"></div>
-        <div class="skeleton-line short"></div>
-        <div class="skeleton-line btn"></div>
-      </div>`
-      )
-      .join("");
-  }
-  renderSkeletons();
-
   let allProducts = [];
-  let hasLoadedOnce = false;
-
-  // Same query pattern as before — no orderBy(), so documents without a
-  // createdAt/timestamp field are never silently excluded.
-  const productsRef = collection(db, PRODUCTS_COLLECTION);
-
-  onSnapshot(
-    productsRef,
-    (snapshot) => {
-      allProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      hasLoadedOnce = true;
-      skeletonGrid.classList.add("hidden");
-      renderProducts();
-    },
-    (err) => {
-      console.error("Firestore error:", err);
-      skeletonGrid.classList.add("hidden");
-      emptyTitle.textContent = "Something went wrong";
-      emptySubtitle.textContent = "We couldn't load products right now. Please try again later.";
-      emptyState.style.display = "flex";
-      showToast("Failed to load products. Please refresh the page.", "error");
-    }
-  );
-
-  function renderProducts() {
-    const term = searchInput.value.trim().toLowerCase();
-    const filtered = term
-      ? allProducts.filter((p) => (p.title || "").toLowerCase().includes(term))
-      : allProducts;
-
-    resultCount.textContent = hasLoadedOnce
-      ? `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`
-      : "";
-
-    if (filtered.length === 0) {
-      productsGrid.classList.add("hidden");
-      productsGrid.innerHTML = "";
-      if (term) {
-        emptyTitle.textContent = "No matching products";
-        emptySubtitle.textContent = `We couldn't find anything for "${escapeHtml(searchInput.value.trim())}".`;
-      } else {
-        emptyTitle.textContent = "No products found";
-        emptySubtitle.textContent = "Check back soon — new items are on the way.";
-      }
-      emptyState.style.display = "flex";
-      return;
-    }
-
-    emptyState.style.display = "none";
-    productsGrid.classList.remove("hidden");
-
-    productsGrid.innerHTML = filtered
-      .map(
-        (p) => `
-      <article class="product-card fade-in">
-        <div class="card-image">
-          <img
-            src="${escapeAttr(p.image)}"
-            alt="${escapeAttr(p.title)}"
-            loading="lazy"
-            decoding="async"
-            onerror="this.onerror=null;this.src='https://via.placeholder.com/500x500/18181c/ff7a1a?text=Draxeliora'"
-          />
-        </div>
-        <div class="card-body">
-          <h3>${escapeHtml(p.title)}</h3>
-          <p>${escapeHtml(p.description)}</p>
-          <a class="buy-btn" href="${escapeAttr(p.link)}" target="_blank" rel="nofollow sponsored noopener noreferrer"
-             aria-label="Buy ${escapeAttr(p.title)} on Amazon"
-             data-id="${p.id}" data-title="${escapeAttr(p.title)}">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v2h10V4H7zM4 8v12a2 2 0 002 2h12a2 2 0 002-2V8H4zm5 4h6v2H9v-2z"/></svg>
-            View on Amazon
-          </a>
-        </div>
-      </article>
-    `
-      )
-      .join("");
-
-    document.querySelectorAll(".buy-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        trackClick(btn.dataset.id, btn.dataset.title);
-      });
-    });
-
-    observeFadeIns();
-  }
-
-  let searchDebounce;
-  searchInput.addEventListener("input", () => {
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(renderProducts, 150);
-  });
-
-  // ---------------- Affiliate Click Tracking ----------------
-  // Fire-and-forget: never blocks or delays the outbound affiliate link.
-  async function trackClick(productId, productTitle) {
-    try {
-      const snap = await getDoc(ANALYTICS_DOC);
-      if (!snap.exists()) {
-        await setDoc(ANALYTICS_DOC, {
-          totalClicks: 1,
-          clicksByProduct: { [productId]: 1 },
-          lastClickAt: serverTimestamp(),
-          lastClickedProductId: productId,
-          lastClickedProductTitle: productTitle
-        });
-      } else {
-        await updateDoc(ANALYTICS_DOC, {
-          totalClicks: increment(1),
-          [`clicksByProduct.${productId}`]: increment(1),
-          lastClickAt: serverTimestamp(),
-          lastClickedProductId: productId,
-          lastClickedProductTitle: productTitle
-        });
-      }
-    } catch (err) {
-      console.error("Click tracking failed:", err);
-      // Silent to the shopper — tracking failures should never block a purchase.
-    }
-
-    if (typeof gtag === "function") {
-      gtag("event", "affiliate_click", {
-        product_id: productId,
-        product_title: productTitle
-      });
-    }
-  }
-
-  // ---------------- Scroll fade-in ----------------
-  function observeFadeIns() {
-    const els = document.querySelectorAll(".fade-in:not(.visible)");
-    if (!("IntersectionObserver" in window)) {
-      els.forEach((el) => el.classList.add("visible"));
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    els.forEach((el) => io.observe(el));
-  }
-  observeFadeIns();
+  let clicksByProduct = {};
+  let editingId = null;
+  let editingModalId = null;
+  let unsubscribeProducts = null;
+  let unsubscribeAnalytics = null;
 
   // ---------------- Toasts ----------------
   function showToast(message, type = "info") {
@@ -743,9 +768,341 @@
     setTimeout(() => {
       el.classList.add("leaving");
       setTimeout(() => el.remove(), 250);
-    }, 3500);
+    }, 3800);
   }
-  window.showToast = showToast;
+
+  function renderProductSkeletons(count = 6) {
+    productsSkeleton.innerHTML = Array.from({ length: count })
+      .map(
+        () => `
+      <div class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+        <div class="skeleton-line btns"></div>
+      </div>`
+      )
+      .join("");
+  }
+  renderProductSkeletons();
+
+  // ---------------- Auth ----------------
+  googleLoginBtn.addEventListener("click", async () => {
+    accessDenied.style.display = "none";
+    googleLoginBtn.disabled = true;
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error(err);
+      accessDenied.textContent = "⚠️ Sign-in failed: " + err.message;
+      accessDenied.style.display = "block";
+      showToast("Sign-in failed. Please try again.", "error");
+    } finally {
+      googleLoginBtn.disabled = false;
+    }
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    if (unsubscribeProducts) { unsubscribeProducts(); unsubscribeProducts = null; }
+    if (unsubscribeAnalytics) { unsubscribeAnalytics(); unsubscribeAnalytics = null; }
+    await signOut(auth);
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    loadingOverlay.classList.add("hidden");
+
+    if (!user) {
+      loginScreen.classList.remove("hidden");
+      adminPanel.style.display = "none";
+      accessDenied.style.display = "none";
+      return;
+    }
+
+    if (user.email !== ADMIN_EMAIL) {
+      loginScreen.classList.remove("hidden");
+      adminPanel.style.display = "none";
+      accessDenied.textContent = "🚫 Access Denied — this account is not authorized to access the admin panel.";
+      accessDenied.style.display = "block";
+      signOut(auth);
+      return;
+    }
+
+    loginScreen.classList.add("hidden");
+    adminPanel.style.display = "block";
+    userEmailEl.textContent = user.email;
+    listenToProducts();
+    listenToAnalytics();
+  });
+
+  // ---------------- Firestore: Real-time Products ----------------
+  // Reads the "products" collection exactly like index.html: no orderBy(),
+  // so documents without a createdAt field are never silently excluded.
+  function listenToProducts() {
+    productsSkeleton.classList.remove("hidden");
+    productsGrid.classList.add("hidden");
+
+    const productsRef = collection(db, PRODUCTS_COLLECTION);
+
+    unsubscribeProducts = onSnapshot(
+      productsRef,
+      (snapshot) => {
+        allProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        productsSkeleton.classList.add("hidden");
+        statTotalProducts.textContent = allProducts.length;
+        renderProducts();
+        renderTopProducts();
+      },
+      (err) => {
+        console.error("Firestore error:", err);
+        productsSkeleton.classList.add("hidden");
+        productsGrid.classList.add("hidden");
+        emptyState.classList.remove("hidden");
+        emptyState.textContent = "Error loading products: " + err.message;
+        showToast("Failed to load products: " + err.message, "error");
+      }
+    );
+  }
+
+  // ---------------- Firestore: Real-time Analytics ----------------
+  function listenToAnalytics() {
+    const analyticsRef = doc(db, ANALYTICS_COLLECTION, ANALYTICS_DOC_ID);
+    unsubscribeAnalytics = onSnapshot(
+      analyticsRef,
+      (snap) => {
+        if (!snap.exists()) {
+          statTotalClicks.textContent = "0";
+          statMostClicked.textContent = "—";
+          statMostClickedCount.textContent = "";
+          statLastClick.textContent = "—";
+          clicksByProduct = {};
+          renderTopProducts();
+          return;
+        }
+        const data = snap.data();
+        clicksByProduct = data.clicksByProduct || {};
+        statTotalClicks.textContent = data.totalClicks ?? 0;
+
+        if (data.lastClickAt && data.lastClickAt.toDate) {
+          statLastClick.textContent = formatRelativeTime(data.lastClickAt.toDate());
+        } else {
+          statLastClick.textContent = "—";
+        }
+
+        renderTopProducts();
+      },
+      (err) => {
+        console.error("Analytics load error:", err);
+        showToast("Failed to load analytics: " + err.message, "error");
+      }
+    );
+  }
+
+  function renderTopProducts() {
+    const entries = Object.entries(clicksByProduct).sort((a, b) => b[1] - a[1]);
+
+    if (entries.length === 0) {
+      statMostClicked.textContent = "No clicks yet";
+      statMostClickedCount.textContent = "";
+      topProductsList.innerHTML = `<div class="analytics-empty">No click data yet — clicks will appear here in real time.</div>`;
+      return;
+    }
+
+    const [topId, topCount] = entries[0];
+    const topProduct = allProducts.find((p) => p.id === topId);
+    statMostClicked.textContent = topProduct ? topProduct.title : "(deleted product)";
+    statMostClickedCount.textContent = `${topCount} click${topCount !== 1 ? "s" : ""}`;
+
+    topProductsList.innerHTML = entries
+      .slice(0, 10)
+      .map(([id, count], i) => {
+        const p = allProducts.find((x) => x.id === id);
+        const name = p ? escapeHtml(p.title) : "(deleted product)";
+        return `
+        <div class="top-product-row">
+          <span class="rank">#${i + 1}</span>
+          <span class="name">${name}</span>
+          <span class="count">${count} click${count !== 1 ? "s" : ""}</span>
+        </div>`;
+      })
+      .join("");
+  }
+
+  function formatRelativeTime(date) {
+    const diffMs = Date.now() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return "Just now";
+    if (diffMin < 60) return `${diffMin} min ago`;
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `${diffHr} hr ago`;
+    const diffDay = Math.floor(diffHr / 24);
+    if (diffDay < 7) return `${diffDay} day${diffDay !== 1 ? "s" : ""} ago`;
+    return date.toLocaleDateString();
+  }
+
+  function renderProducts() {
+    const term = searchInput.value.trim().toLowerCase();
+    const filtered = term
+      ? allProducts.filter(
+          (p) =>
+            (p.title || "").toLowerCase().includes(term) ||
+            (p.description || "").toLowerCase().includes(term)
+        )
+      : allProducts;
+
+    productCount.textContent = `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`;
+
+    if (filtered.length === 0) {
+      productsGrid.classList.add("hidden");
+      productsGrid.innerHTML = "";
+      emptyState.classList.remove("hidden");
+      emptyState.textContent = term ? "No products match your search." : "No products found.";
+      return;
+    }
+
+    emptyState.classList.add("hidden");
+    productsGrid.classList.remove("hidden");
+
+    productsGrid.innerHTML = filtered
+      .map((p) => {
+        const clicks = clicksByProduct[p.id] || 0;
+        return `
+      <div class="product-card" data-id="${p.id}">
+        <div class="product-image">
+          <img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.title)}" loading="lazy" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300/1c1c20/ff7a1a?text=No+Image'" />
+        </div>
+        <div class="product-body">
+          <h3>${escapeHtml(p.title)}</h3>
+          <span class="click-badge">👆 ${clicks} click${clicks !== 1 ? "s" : ""}</span>
+          <p>${escapeHtml(p.description)}</p>
+          <a class="affiliate-link" href="${escapeAttr(p.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.link)}</a>
+          <div class="product-actions">
+            <button class="btn btn-outline btn-small edit-btn" data-id="${p.id}">Edit</button>
+            <button class="btn btn-danger btn-small delete-btn" data-id="${p.id}">Delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+      })
+      .join("");
+
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => openEditModal(btn.dataset.id));
+    });
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
+    });
+  }
+
+  searchInput.addEventListener("input", renderProducts);
+
+  // ---------------- Add Product ----------------
+  productForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = editingId ? "Saving..." : "Adding...";
+
+    const data = {
+      title: titleInput.value.trim(),
+      image: imageInput.value.trim(),
+      link: linkInput.value.trim(),
+      description: descInput.value.trim()
+    };
+
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, PRODUCTS_COLLECTION, editingId), data);
+        showToast("Product updated successfully.", "success");
+      } else {
+        await addDoc(collection(db, PRODUCTS_COLLECTION), data);
+        showToast("Product added successfully.", "success");
+      }
+      resetForm();
+    } catch (err) {
+      console.error(err);
+      showToast("Error saving product: " + err.message, "error");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = editingId ? "Save Changes" : "Add Product";
+    }
+  });
+
+  cancelEditBtn.addEventListener("click", resetForm);
+
+  function resetForm() {
+    productForm.reset();
+    editingId = null;
+    submitBtn.textContent = "Add Product";
+    cancelEditBtn.classList.add("hidden");
+    formTitle.textContent = "Add New Product";
+  }
+
+  // ---------------- Edit Product (modal) ----------------
+  function openEditModal(id) {
+    const p = allProducts.find((x) => x.id === id);
+    if (!p) {
+      showToast("Product not found — it may have just been deleted.", "warning");
+      return;
+    }
+    editingModalId = id;
+    editTitle.value = p.title || "";
+    editImage.value = p.image || "";
+    editLink.value = p.link || "";
+    editDesc.value = p.description || "";
+    editModalOverlay.classList.add("active");
+  }
+
+  editCancelBtn.addEventListener("click", closeEditModal);
+  editModalOverlay.addEventListener("click", (e) => {
+    if (e.target === editModalOverlay) closeEditModal();
+  });
+
+  function closeEditModal() {
+    editModalOverlay.classList.remove("active");
+    editingModalId = null;
+    editForm.reset();
+  }
+
+  editForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!editingModalId) return;
+    const saveBtn = document.getElementById("editSaveBtn");
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving...";
+
+    const data = {
+      title: editTitle.value.trim(),
+      image: editImage.value.trim(),
+      link: editLink.value.trim(),
+      description: editDesc.value.trim()
+    };
+
+    try {
+      await updateDoc(doc(db, PRODUCTS_COLLECTION, editingModalId), data);
+      showToast("Product updated successfully.", "success");
+      closeEditModal();
+    } catch (err) {
+      console.error(err);
+      showToast("Error updating product: " + err.message, "error");
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Changes";
+    }
+  });
+
+  // ---------------- Delete Product ----------------
+  async function deleteProduct(id) {
+    if (!confirm("Are you sure you want to delete this product? This cannot be undone.")) return;
+    const card = document.querySelector(`.product-card[data-id="${id}"]`);
+    if (card) card.style.opacity = "0.4";
+    try {
+      await deleteDoc(doc(db, PRODUCTS_COLLECTION, id));
+      showToast("Product deleted.", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Error deleting product: " + err.message, "error");
+      if (card) card.style.opacity = "1";
+    }
+  }
 
   // ---------------- Helpers ----------------
   function escapeHtml(str) {
