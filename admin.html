@@ -1,158 +1,774 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Draxeliora Admin</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Draxeliora Admin Panel</title>
 <style>
-body{
-font-family:Arial,sans-serif;
-padding:20px;
-max-width:500px;
-margin:auto;
-}
+  :root{
+    --bg:#0d0d0f;
+    --bg-alt:#17171a;
+    --card:#1c1c20;
+    --border:#2a2a2f;
+    --orange:#ff7a1a;
+    --orange-dark:#e0650a;
+    --text:#f2f2f2;
+    --text-dim:#a0a0a6;
+    --danger:#ff4747;
+    --success:#2ecc71;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  a{color:var(--orange);}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
-input,textarea{
-width:100%;
-padding:10px;
-margin:10px 0;
-box-sizing:border-box;
-}
+  /* ---------- Loading Overlay ---------- */
+  #loadingOverlay{
+    position:fixed;inset:0;
+    background:rgba(10,10,12,0.92);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;
+    flex-direction:column;
+    gap:14px;
+  }
+  .spinner{
+    width:48px;height:48px;
+    border:5px solid var(--border);
+    border-top:5px solid var(--orange);
+    border-radius:50%;
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #loadingOverlay p{color:var(--text-dim);font-size:14px;letter-spacing:0.5px;}
+  .hidden{display:none !important;}
 
-button{
-padding:12px;
-background:#ff9900;
-color:white;
-border:none;
-width:100%;
-cursor:pointer;
-}
+  /* ---------- Login Screen ---------- */
+  #loginScreen{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .login-box{
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:48px 36px;
+    text-align:center;
+    max-width:400px;
+    width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .login-box h1{
+    font-size:26px;
+    margin-bottom:6px;
+    background:linear-gradient(135deg,var(--orange),#ffb066);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .login-box p{color:var(--text-dim);margin-bottom:28px;font-size:14px;}
+  .google-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    background:#fff;color:#1f1f1f;
+    border:none;
+    padding:12px 22px;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    width:100%;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .google-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.35);}
+  .google-btn svg{width:20px;height:20px;}
+
+  #accessDenied{
+    display:none;
+    margin-top:20px;
+    background:rgba(255,71,71,0.1);
+    border:1px solid var(--danger);
+    color:var(--danger);
+    padding:14px;
+    border-radius:8px;
+    font-size:14px;
+  }
+
+  /* ---------- Admin Layout ---------- */
+  #adminPanel{display:none;min-height:100vh;}
+  header.topbar{
+    background:var(--bg-alt);
+    border-bottom:1px solid var(--border);
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    position:sticky;
+    top:0;
+    z-index:100;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-size:20px;font-weight:700;
+  }
+  .brand span{color:var(--orange);}
+  .user-info{
+    display:flex;align-items:center;gap:12px;
+    font-size:14px;
+    color:var(--text-dim);
+  }
+  .user-info strong{color:var(--text);}
+  .btn{
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    transition:transform .12s ease, opacity .12s ease;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn-orange{background:var(--orange);color:#111;}
+  .btn-orange:hover{background:var(--orange-dark);}
+  .btn-outline{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text);
+  }
+  .btn-outline:hover{border-color:var(--orange);color:var(--orange);}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-danger:hover{background:#e02f2f;}
+  .btn-small{padding:7px 12px;font-size:13px;}
+
+  main{
+    max-width:1200px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+
+  .section-title{
+    font-size:18px;
+    margin-bottom:16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .section-title::before{
+    content:"";
+    width:4px;height:18px;
+    background:var(--orange);
+    border-radius:2px;
+    display:inline-block;
+  }
+
+  /* ---------- Form Card ---------- */
+  .form-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:24px;
+    margin-bottom:36px;
+  }
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-group.full{grid-column:1 / -1;}
+  label{font-size:13px;color:var(--text-dim);font-weight:600;}
+  input[type="text"],input[type="url"],textarea{
+    background:var(--bg);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14px;
+    outline:none;
+    transition:border-color .15s ease;
+    font-family:inherit;
+  }
+  input:focus,textarea:focus{border-color:var(--orange);}
+  textarea{resize:vertical;min-height:80px;}
+  .form-actions{
+    margin-top:18px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  #formStatus{font-size:13px;margin-top:10px;display:none;}
+  #formStatus.error{color:var(--danger);}
+  #formStatus.success{color:var(--success);}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .search-box{
+    flex:1;
+    min-width:220px;
+    max-width:360px;
+    position:relative;
+  }
+  .search-box input{
+    width:100%;
+    padding:10px 14px 10px 36px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    font-size:14px;
+  }
+  .search-box input:focus{outline:none;border-color:var(--orange);}
+  .search-box svg{
+    position:absolute;
+    left:10px;top:50%;
+    transform:translateY(-50%);
+    width:16px;height:16px;
+    color:var(--text-dim);
+  }
+  .product-count{color:var(--text-dim);font-size:14px;}
+
+  /* ---------- Product Grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:20px;
+  }
+  .product-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .product-card:hover{border-color:var(--orange);transform:translateY(-3px);}
+  .product-image{
+    width:100%;
+    height:170px;
+    background:var(--bg-alt);
+    overflow:hidden;
+  }
+  .product-image img{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .product-body{
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    flex:1;
+  }
+  .product-body h3{font-size:16px;line-height:1.3;}
+  .product-body p{
+    font-size:13px;
+    color:var(--text-dim);
+    line-height:1.5;
+    flex:1;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .affiliate-link{
+    font-size:13px;
+    word-break:break-all;
+    color:var(--orange);
+    text-decoration:none;
+  }
+  .affiliate-link:hover{text-decoration:underline;}
+  .product-actions{
+    display:flex;
+    gap:10px;
+    margin-top:8px;
+  }
+  .product-actions .btn{flex:1;}
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--text-dim);
+  }
+
+  /* ---------- Modal (Edit) ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.6);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+  }
+  .modal-overlay.active{display:flex;}
+  .modal-box{
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:26px;
+    width:100%;
+    max-width:520px;
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  .modal-box h2{margin-bottom:18px;font-size:19px;}
+  .modal-box .form-grid{grid-template-columns:1fr;}
+
+  @media(max-width:700px){
+    .form-grid{grid-template-columns:1fr;}
+    header.topbar{padding:14px 16px;}
+    main{padding:20px 14px 50px;}
+    .toolbar{flex-direction:column;align-items:stretch;}
+    .search-box{max-width:none;}
+  }
 </style>
 </head>
-
 <body>
 
-<h2>Admin Panel</h2>
-
-<input id="title" placeholder="Product Title">
-
-<input id="image" placeholder="Image URL">
-
-<input id="link" placeholder="Affiliate Link">
-
-<textarea id="desc" placeholder="Description"></textarea>
-
-<button id="addBtn">Add Product</button>
-<hr>
-
-<h3>Products</h3>
-
-<div id="productList"></div>
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-deleteDoc,
-doc
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
-
-
-
-
-const firebaseConfig = {
-apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
-authDomain: "draxeliora-store.firebaseapp.com",
-projectId: "draxeliora-store",
-storageBucket: "draxeliora-store.firebasestorage.app",
-messagingSenderId: "119154228798",
-appId: "1:119154228798:web:1c45579a613461b9735b6f"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-async function loadProducts(){
-
-const snapshot = await getDocs(collection(db,"products"));
-
-const list = document.getElementById("productList");
-
-list.innerHTML = "";
-
-snapshot.forEach((productDoc)=>{
-
-const p = productDoc.data();
-
-list.innerHTML += `
-<div style="border:1px solid #ddd;padding:10px;margin:10px 0;">
-<img src="${p.image}" width="100"><br><br>
-
-<b>${p.title}</b><br>
-
-${p.description}<br><br>
-
-<a href="${p.link}" target="_blank">Open Product</a>
-
-<br><br>
-
-<button onclick="deleteProduct('${productDoc.id}')">
-Delete Product
-</button>
-
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <p>Loading Draxeliora Admin...</p>
 </div>
-`;
 
-});
+<!-- Login Screen -->
+<div id="loginScreen" class="hidden">
+  <div class="login-box">
+    <h1>Draxeliora <span>Admin</span></h1>
+    <p>Sign in with your authorized Google account to continue.</p>
+    <button class="google-btn" id="googleLoginBtn">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.6 0-14.2 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.3 26.9 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.3-4.1 5.7l6.6 5.4C41.4 36.4 44 30.8 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+      Sign in with Google
+    </button>
+    <div id="accessDenied">🚫 Access Denied — this account is not authorized to access the admin panel.</div>
+  </div>
+</div>
 
-}
+<!-- Admin Panel -->
+<div id="adminPanel">
+  <header class="topbar">
+    <div class="brand">Draxeliora <span>Admin</span></div>
+    <div class="user-info">
+      Logged in as <strong id="userEmail"></strong>
+      <button class="btn btn-outline btn-small" id="logoutBtn">Logout</button>
+    </div>
+  </header>
 
-window.deleteProduct = async function(id){
+  <main>
+    <!-- Add / Edit Product Form -->
+    <section class="form-card">
+      <h2 class="section-title">Add New Product</h2>
+      <form id="productForm">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="titleInput">Product Title</label>
+            <input type="text" id="titleInput" placeholder="e.g. Wireless Noise-Cancelling Headphones" required />
+          </div>
+          <div class="form-group full">
+            <label for="imageInput">Image URL</label>
+            <input type="url" id="imageInput" placeholder="https://example.com/image.jpg" required />
+          </div>
+          <div class="form-group full">
+            <label for="linkInput">Affiliate Link</label>
+            <input type="url" id="linkInput" placeholder="https://affiliate-link.com/product" required />
+          </div>
+          <div class="form-group full">
+            <label for="descInput">Description</label>
+            <textarea id="descInput" placeholder="Short product description..." required></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-orange" id="submitBtn">Add Product</button>
+          <button type="button" class="btn btn-outline hidden" id="cancelEditBtn">Cancel</button>
+        </div>
+        <div id="formStatus"></div>
+      </form>
+    </section>
 
-if(!confirm("Delete this product?")) return;
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search products..." />
+      </div>
+      <div class="product-count" id="productCount">0 products</div>
+    </div>
 
-await deleteDoc(doc(db,"products",id));
+    <h2 class="section-title">All Products</h2>
+    <div id="productsLoading" style="display:flex;justify-content:center;padding:40px;">
+      <div class="spinner"></div>
+    </div>
+    <div class="grid" id="productsGrid"></div>
+    <div class="empty-state hidden" id="emptyState">No products found.</div>
+  </main>
+</div>
 
-loadProducts();
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModalOverlay">
+  <div class="modal-box">
+    <h2>Edit Product</h2>
+    <form id="editForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="editTitle">Product Title</label>
+          <input type="text" id="editTitle" required />
+        </div>
+        <div class="form-group">
+          <label for="editImage">Image URL</label>
+          <input type="url" id="editImage" required />
+        </div>
+        <div class="form-group">
+          <label for="editLink">Affiliate Link</label>
+          <input type="url" id="editLink" required />
+        </div>
+        <div class="form-group">
+          <label for="editDesc">Description</label>
+          <textarea id="editDesc" required></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-orange" id="editSaveBtn">Save Changes</button>
+        <button type="button" class="btn btn-outline" id="editCancelBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-};
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    onSnapshot,
+    query,
+    orderBy,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-loadProducts();
-document.getElementById("addBtn").addEventListener("click", async () => {
+  // ---------------- Firebase Config ----------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
+    authDomain: "draxeliora-store.firebaseapp.com",
+    projectId: "draxeliora-store",
+    storageBucket: "draxeliora-store.firebasestorage.app",
+    messagingSenderId: "119154228798",
+    appId: "1:119154228798:web:1c45579a613461b9735b6f"
+  };
 
-try {
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
-await addDoc(collection(db,"products"),{
+  const ADMIN_EMAIL = "businessidea100067@gmail.com";
+  const PRODUCTS_COLLECTION = "products";
 
-title: document.getElementById("title").value,
+  // ---------------- DOM Elements ----------------
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const loginScreen = document.getElementById("loginScreen");
+  const adminPanel = document.getElementById("adminPanel");
+  const googleLoginBtn = document.getElementById("googleLoginBtn");
+  const accessDenied = document.getElementById("accessDenied");
+  const userEmailEl = document.getElementById("userEmail");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-image: document.getElementById("image").value,
+  const productForm = document.getElementById("productForm");
+  const titleInput = document.getElementById("titleInput");
+  const imageInput = document.getElementById("imageInput");
+  const linkInput = document.getElementById("linkInput");
+  const descInput = document.getElementById("descInput");
+  const submitBtn = document.getElementById("submitBtn");
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
+  const formStatus = document.getElementById("formStatus");
 
-link: document.getElementById("link").value,
+  const searchInput = document.getElementById("searchInput");
+  const productCount = document.getElementById("productCount");
+  const productsGrid = document.getElementById("productsGrid");
+  const productsLoading = document.getElementById("productsLoading");
+  const emptyState = document.getElementById("emptyState");
 
-description: document.getElementById("desc").value
+  const editModalOverlay = document.getElementById("editModalOverlay");
+  const editForm = document.getElementById("editForm");
+  const editTitle = document.getElementById("editTitle");
+  const editImage = document.getElementById("editImage");
+  const editLink = document.getElementById("editLink");
+  const editDesc = document.getElementById("editDesc");
+  const editCancelBtn = document.getElementById("editCancelBtn");
 
-});
+  let allProducts = [];
+  let editingId = null;
+  let editingModalId = null;
 
-alert("Product Added!");
-document.getElementById("title").value = "";
-document.getElementById("image").value = "";
-document.getElementById("link").value = "";
-document.getElementById("desc").value = "";
- loadProducts();
-} catch(error){
+  // ---------------- Auth ----------------
+  googleLoginBtn.addEventListener("click", async () => {
+    accessDenied.style.display = "none";
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error(err);
+      accessDenied.textContent = "⚠️ Sign-in failed: " + err.message;
+      accessDenied.style.display = "block";
+    }
+  });
 
-alert("ERROR: " + error.message);
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+  });
 
-}
+  onAuthStateChanged(auth, (user) => {
+    loadingOverlay.classList.add("hidden");
 
-});
+    if (!user) {
+      loginScreen.classList.remove("hidden");
+      adminPanel.style.display = "none";
+      accessDenied.style.display = "none";
+      return;
+    }
 
+    if (user.email !== ADMIN_EMAIL) {
+      loginScreen.classList.remove("hidden");
+      adminPanel.style.display = "none";
+      accessDenied.textContent = "🚫 Access Denied — this account is not authorized to access the admin panel.";
+      accessDenied.style.display = "block";
+      signOut(auth);
+      return;
+    }
+
+    // Authorized admin
+    loginScreen.classList.add("hidden");
+    adminPanel.style.display = "block";
+    userEmailEl.textContent = user.email;
+    listenToProducts();
+  });
+
+  // ---------------- Firestore: Real-time Products ----------------
+  function listenToProducts() {
+    productsLoading.style.display = "flex";
+    const q = query(collection(db, PRODUCTS_COLLECTION), orderBy("createdAt", "desc"));
+    onSnapshot(
+      q,
+      (snapshot) => {
+        allProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        productsLoading.style.display = "none";
+        renderProducts();
+      },
+      (err) => {
+        console.error(err);
+        productsLoading.style.display = "none";
+        productsGrid.innerHTML = `<div class="empty-state">Error loading products: ${escapeHtml(err.message)}</div>`;
+      }
+    );
+  }
+
+  function renderProducts() {
+    const term = searchInput.value.trim().toLowerCase();
+    const filtered = term
+      ? allProducts.filter(
+          (p) =>
+            (p.title || "").toLowerCase().includes(term) ||
+            (p.description || "").toLowerCase().includes(term)
+        )
+      : allProducts;
+
+    productCount.textContent = `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`;
+
+    if (filtered.length === 0) {
+      productsGrid.innerHTML = "";
+      emptyState.classList.remove("hidden");
+      return;
+    }
+    emptyState.classList.add("hidden");
+
+    productsGrid.innerHTML = filtered
+      .map(
+        (p) => `
+      <div class="product-card" data-id="${p.id}">
+        <div class="product-image">
+          <img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.title)}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300/1c1c20/ff7a1a?text=No+Image'" />
+        </div>
+        <div class="product-body">
+          <h3>${escapeHtml(p.title)}</h3>
+          <p>${escapeHtml(p.description)}</p>
+          <a class="affiliate-link" href="${escapeAttr(p.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.link)}</a>
+          <div class="product-actions">
+            <button class="btn btn-outline btn-small edit-btn" data-id="${p.id}">Edit</button>
+            <button class="btn btn-danger btn-small delete-btn" data-id="${p.id}">Delete</button>
+          </div>
+        </div>
+      </div>
+    `
+      )
+      .join("");
+
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => openEditModal(btn.dataset.id));
+    });
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
+    });
+  }
+
+  searchInput.addEventListener("input", renderProducts);
+
+  // ---------------- Add Product ----------------
+  productForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setFormStatus("", null);
+    submitBtn.disabled = true;
+    submitBtn.textContent = editingId ? "Saving..." : "Adding...";
+
+    const data = {
+      title: titleInput.value.trim(),
+      image: imageInput.value.trim(),
+      link: linkInput.value.trim(),
+      description: descInput.value.trim()
+    };
+
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, PRODUCTS_COLLECTION, editingId), data);
+        setFormStatus("Product updated successfully.", "success");
+      } else {
+        data.createdAt = serverTimestamp();
+        await addDoc(collection(db, PRODUCTS_COLLECTION), data);
+        setFormStatus("Product added successfully.", "success");
+      }
+      resetForm();
+    } catch (err) {
+      console.error(err);
+      setFormStatus("Error: " + err.message, "error");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = editingId ? "Save Changes" : "Add Product";
+    }
+  });
+
+  cancelEditBtn.addEventListener("click", resetForm);
+
+  function resetForm() {
+    productForm.reset();
+    editingId = null;
+    submitBtn.textContent = "Add Product";
+    cancelEditBtn.classList.add("hidden");
+    document.querySelector(".form-card h2").textContent = "Add New Product";
+  }
+
+  function setFormStatus(msg, type) {
+    formStatus.textContent = msg;
+    formStatus.className = type ? type : "";
+    formStatus.style.display = msg ? "block" : "none";
+    if (msg) {
+      setTimeout(() => {
+        formStatus.style.display = "none";
+      }, 4000);
+    }
+  }
+
+  // Inline edit uses modal instead of top form for a cleaner UX
+  function openEditModal(id) {
+    const p = allProducts.find((x) => x.id === id);
+    if (!p) return;
+    editingModalId = id;
+    editTitle.value = p.title || "";
+    editImage.value = p.image || "";
+    editLink.value = p.link || "";
+    editDesc.value = p.description || "";
+    editModalOverlay.classList.add("active");
+  }
+
+  editCancelBtn.addEventListener("click", closeEditModal);
+  editModalOverlay.addEventListener("click", (e) => {
+    if (e.target === editModalOverlay) closeEditModal();
+  });
+
+  function closeEditModal() {
+    editModalOverlay.classList.remove("active");
+    editingModalId = null;
+    editForm.reset();
+  }
+
+  editForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!editingModalId) return;
+    const saveBtn = document.getElementById("editSaveBtn");
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving...";
+
+    const data = {
+      title: editTitle.value.trim(),
+      image: editImage.value.trim(),
+      link: editLink.value.trim(),
+      description: editDesc.value.trim()
+    };
+
+    try {
+      await updateDoc(doc(db, PRODUCTS_COLLECTION, editingModalId), data);
+      closeEditModal();
+    } catch (err) {
+      console.error(err);
+      alert("Error updating product: " + err.message);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Changes";
+    }
+  });
+
+  // ---------------- Delete Product ----------------
+  async function deleteProduct(id) {
+    if (!confirm("Are you sure you want to delete this product? This cannot be undone.")) return;
+    const card = document.querySelector(`.product-card[data-id="${id}"]`);
+    if (card) card.style.opacity = "0.4";
+    try {
+      await deleteDoc(doc(db, PRODUCTS_COLLECTION, id));
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting product: " + err.message);
+      if (card) card.style.opacity = "1";
+    }
+  }
+
+  // ---------------- Helpers ----------------
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function escapeAttr(str) {
+    return escapeHtml(str);
+  }
 </script>
-
 </body>
 </html>
