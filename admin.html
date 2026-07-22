@@ -28,7 +28,6 @@
   ::-webkit-scrollbar{width:8px;height:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
-  /* ---------- Loading Overlay ---------- */
   #loadingOverlay{
     position:fixed;inset:0;
     background:rgba(10,10,12,0.92);
@@ -48,7 +47,6 @@
   #loadingOverlay p{color:var(--text-dim);font-size:14px;letter-spacing:0.5px;}
   .hidden{display:none !important;}
 
-  /* ---------- Login Screen ---------- */
   #loginScreen{
     min-height:100vh;
     display:flex;align-items:center;justify-content:center;
@@ -99,7 +97,6 @@
     font-size:14px;
   }
 
-  /* ---------- Admin Layout ---------- */
   #adminPanel{display:none;min-height:100vh;}
   header.topbar{
     background:var(--bg-alt);
@@ -169,7 +166,6 @@
     display:inline-block;
   }
 
-  /* ---------- Form Card ---------- */
   .form-card{
     background:var(--card);
     border:1px solid var(--border);
@@ -208,7 +204,6 @@
   #formStatus.error{color:var(--danger);}
   #formStatus.success{color:var(--success);}
 
-  /* ---------- Toolbar ---------- */
   .toolbar{
     display:flex;
     justify-content:space-between;
@@ -242,7 +237,6 @@
   }
   .product-count{color:var(--text-dim);font-size:14px;}
 
-  /* ---------- Product Grid ---------- */
   .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
@@ -307,7 +301,6 @@
     color:var(--text-dim);
   }
 
-  /* ---------- Modal (Edit) ---------- */
   .modal-overlay{
     position:fixed;inset:0;
     background:rgba(0,0,0,0.6);
@@ -342,13 +335,11 @@
 </head>
 <body>
 
-<!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
   <p>Loading Draxeliora Admin...</p>
 </div>
 
-<!-- Login Screen -->
 <div id="loginScreen" class="hidden">
   <div class="login-box">
     <h1>Draxeliora <span>Admin</span></h1>
@@ -361,7 +352,6 @@
   </div>
 </div>
 
-<!-- Admin Panel -->
 <div id="adminPanel">
   <header class="topbar">
     <div class="brand">Draxeliora <span>Admin</span></div>
@@ -372,9 +362,8 @@
   </header>
 
   <main>
-    <!-- Add / Edit Product Form -->
     <section class="form-card">
-      <h2 class="section-title">Add New Product</h2>
+      <h2 class="section-title" id="formTitle">Add New Product</h2>
       <form id="productForm">
         <div class="form-grid">
           <div class="form-group full">
@@ -402,7 +391,6 @@
       </form>
     </section>
 
-    <!-- Toolbar -->
     <div class="toolbar">
       <div class="search-box">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -415,12 +403,11 @@
     <div id="productsLoading" style="display:flex;justify-content:center;padding:40px;">
       <div class="spinner"></div>
     </div>
-    <div class="grid" id="productsGrid"></div>
+    <div class="grid hidden" id="productsGrid"></div>
     <div class="empty-state hidden" id="emptyState">No products found.</div>
   </main>
 </div>
 
-<!-- Edit Modal -->
 <div class="modal-overlay" id="editModalOverlay">
   <div class="modal-box">
     <h2>Edit Product</h2>
@@ -467,13 +454,9 @@
     updateDoc,
     deleteDoc,
     doc,
-    onSnapshot,
-    query,
-    orderBy,
-    serverTimestamp
+    onSnapshot
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-  // ---------------- Firebase Config ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
     authDomain: "draxeliora-store.firebaseapp.com",
@@ -489,9 +472,10 @@
   const provider = new GoogleAuthProvider();
 
   const ADMIN_EMAIL = "businessidea100067@gmail.com";
+
+  // Same collection name as index.html — must always match the store page.
   const PRODUCTS_COLLECTION = "products";
 
-  // ---------------- DOM Elements ----------------
   const loadingOverlay = document.getElementById("loadingOverlay");
   const loginScreen = document.getElementById("loginScreen");
   const adminPanel = document.getElementById("adminPanel");
@@ -500,6 +484,7 @@
   const userEmailEl = document.getElementById("userEmail");
   const logoutBtn = document.getElementById("logoutBtn");
 
+  const formTitle = document.getElementById("formTitle");
   const productForm = document.getElementById("productForm");
   const titleInput = document.getElementById("titleInput");
   const imageInput = document.getElementById("imageInput");
@@ -526,8 +511,8 @@
   let allProducts = [];
   let editingId = null;
   let editingModalId = null;
+  let unsubscribeProducts = null;
 
-  // ---------------- Auth ----------------
   googleLoginBtn.addEventListener("click", async () => {
     accessDenied.style.display = "none";
     try {
@@ -540,6 +525,10 @@
   });
 
   logoutBtn.addEventListener("click", async () => {
+    if (unsubscribeProducts) {
+      unsubscribeProducts();
+      unsubscribeProducts = null;
+    }
     await signOut(auth);
   });
 
@@ -562,28 +551,33 @@
       return;
     }
 
-    // Authorized admin
     loginScreen.classList.add("hidden");
     adminPanel.style.display = "block";
     userEmailEl.textContent = user.email;
     listenToProducts();
   });
 
-  // ---------------- Firestore: Real-time Products ----------------
+  // Reads the "products" collection the exact same way index.html does:
+  // no orderBy(), so documents without a createdAt field are never
+  // silently excluded from the results.
   function listenToProducts() {
     productsLoading.style.display = "flex";
-    const q = query(collection(db, PRODUCTS_COLLECTION), orderBy("createdAt", "desc"));
-    onSnapshot(
-      q,
+
+    const productsRef = collection(db, PRODUCTS_COLLECTION);
+
+    unsubscribeProducts = onSnapshot(
+      productsRef,
       (snapshot) => {
         allProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
         productsLoading.style.display = "none";
         renderProducts();
       },
       (err) => {
-        console.error(err);
+        console.error("Firestore error:", err);
         productsLoading.style.display = "none";
-        productsGrid.innerHTML = `<div class="empty-state">Error loading products: ${escapeHtml(err.message)}</div>`;
+        productsGrid.classList.add("hidden");
+        emptyState.classList.remove("hidden");
+        emptyState.textContent = "Error loading products: " + err.message;
       }
     );
   }
@@ -601,18 +595,22 @@
     productCount.textContent = `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`;
 
     if (filtered.length === 0) {
+      productsGrid.classList.add("hidden");
       productsGrid.innerHTML = "";
       emptyState.classList.remove("hidden");
+      emptyState.textContent = term ? "No products match your search." : "No products found.";
       return;
     }
+
     emptyState.classList.add("hidden");
+    productsGrid.classList.remove("hidden");
 
     productsGrid.innerHTML = filtered
       .map(
         (p) => `
       <div class="product-card" data-id="${p.id}">
         <div class="product-image">
-          <img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.title)}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300/1c1c20/ff7a1a?text=No+Image'" />
+          <img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.title)}" loading="lazy" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300/1c1c20/ff7a1a?text=No+Image'" />
         </div>
         <div class="product-body">
           <h3>${escapeHtml(p.title)}</h3>
@@ -638,7 +636,6 @@
 
   searchInput.addEventListener("input", renderProducts);
 
-  // ---------------- Add Product ----------------
   productForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     setFormStatus("", null);
@@ -657,7 +654,6 @@
         await updateDoc(doc(db, PRODUCTS_COLLECTION, editingId), data);
         setFormStatus("Product updated successfully.", "success");
       } else {
-        data.createdAt = serverTimestamp();
         await addDoc(collection(db, PRODUCTS_COLLECTION), data);
         setFormStatus("Product added successfully.", "success");
       }
@@ -678,7 +674,7 @@
     editingId = null;
     submitBtn.textContent = "Add Product";
     cancelEditBtn.classList.add("hidden");
-    document.querySelector(".form-card h2").textContent = "Add New Product";
+    formTitle.textContent = "Add New Product";
   }
 
   function setFormStatus(msg, type) {
@@ -692,7 +688,6 @@
     }
   }
 
-  // Inline edit uses modal instead of top form for a cleaner UX
   function openEditModal(id) {
     const p = allProducts.find((x) => x.id === id);
     if (!p) return;
@@ -741,7 +736,6 @@
     }
   });
 
-  // ---------------- Delete Product ----------------
   async function deleteProduct(id) {
     if (!confirm("Are you sure you want to delete this product? This cannot be undone.")) return;
     const card = document.querySelector(`.product-card[data-id="${id}"]`);
@@ -755,7 +749,6 @@
     }
   }
 
-  // ---------------- Helpers ----------------
   function escapeHtml(str) {
     if (!str) return "";
     return String(str)
