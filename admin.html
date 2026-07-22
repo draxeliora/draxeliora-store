@@ -43,7 +43,11 @@ cursor:pointer;
 <textarea id="desc" placeholder="Description"></textarea>
 
 <button id="addBtn">Add Product</button>
+<hr>
 
+<h3>Products</h3>
+
+<div id="productList"></div>
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -51,8 +55,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebas
 import {
 getFirestore,
 collection,
-addDoc
+addDoc,
+getDocs,
+deleteDoc,
+doc
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+
+
 
 const firebaseConfig = {
 apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
@@ -65,7 +76,52 @@ appId: "1:119154228798:web:1c45579a613461b9735b6f"
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+async function loadProducts(){
 
+const snapshot = await getDocs(collection(db,"products"));
+
+const list = document.getElementById("productList");
+
+list.innerHTML = "";
+
+snapshot.forEach((productDoc)=>{
+
+const p = productDoc.data();
+
+list.innerHTML += `
+<div style="border:1px solid #ddd;padding:10px;margin:10px 0;">
+<img src="${p.image}" width="100"><br><br>
+
+<b>${p.title}</b><br>
+
+${p.description}<br><br>
+
+<a href="${p.link}" target="_blank">Open Product</a>
+
+<br><br>
+
+<button onclick="deleteProduct('${productDoc.id}')">
+Delete Product
+</button>
+
+</div>
+`;
+
+});
+
+}
+
+window.deleteProduct = async function(id){
+
+if(!confirm("Delete this product?")) return;
+
+await deleteDoc(doc(db,"products",id));
+
+loadProducts();
+
+};
+
+loadProducts();
 document.getElementById("addBtn").addEventListener("click", async () => {
 
 try {
@@ -83,7 +139,11 @@ description: document.getElementById("desc").value
 });
 
 alert("Product Added!");
-
+document.getElementById("title").value = "";
+document.getElementById("image").value = "";
+document.getElementById("link").value = "";
+document.getElementById("desc").value = "";
+ loadProducts();
 } catch(error){
 
 alert("ERROR: " + error.message);
