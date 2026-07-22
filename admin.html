@@ -16,6 +16,7 @@ input,textarea{
 width:100%;
 padding:10px;
 margin:10px 0;
+box-sizing:border-box;
 }
 
 button{
@@ -24,6 +25,7 @@ background:#ff9900;
 color:white;
 border:none;
 width:100%;
+cursor:pointer;
 }
 </style>
 </head>
@@ -40,7 +42,7 @@ width:100%;
 
 <textarea id="desc" placeholder="Description"></textarea>
 
-<button onclick="saveProduct()">Add Product</button>
+<button id="addBtn">Add Product</button>
 
 <script type="module">
 
@@ -64,23 +66,31 @@ appId: "1:119154228798:web:1c45579a613461b9735b6f"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.saveProduct = async () => {
+document.getElementById("addBtn").addEventListener("click", async () => {
+
+try {
 
 await addDoc(collection(db,"products"),{
 
-title:document.getElementById("title").value,
+title: document.getElementById("title").value,
 
-image:document.getElementById("image").value,
+image: document.getElementById("image").value,
 
-link:document.getElementById("link").value,
+link: document.getElementById("link").value,
 
-desc:document.getElementById("desc").value
+description: document.getElementById("desc").value
 
 });
 
 alert("Product Added!");
 
-};
+} catch(error){
+
+alert("ERROR: " + error.message);
+
+}
+
+});
 
 </script>
 
