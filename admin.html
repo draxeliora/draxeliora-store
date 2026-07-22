@@ -2,461 +2,541 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Draxeliora Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Draxeliora Store | Curated Picks You'll Love</title>
+<meta name="description" content="Draxeliora Store — a curated collection of hand-picked products. Discover quality finds across every category, reviewed and recommended." />
+<meta name="keywords" content="Draxeliora, Draxeliora Store, online store, curated products, affiliate store, best products" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Draxeliora Store" />
+<meta name="theme-color" content="#0d0d0f" />
+<link rel="canonical" href="https://draxeliora-store.web.app/" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Draxeliora Store" />
+<meta property="og:title" content="Draxeliora Store | Curated Picks You'll Love" />
+<meta property="og:description" content="A curated collection of hand-picked products, reviewed and recommended by the Draxeliora team." />
+<meta property="og:url" content="https://draxeliora-store.web.app/" />
+<meta property="og:image" content="/icons/og-cover.jpg" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Draxeliora Store | Curated Picks You'll Love" />
+<meta name="twitter:description" content="A curated collection of hand-picked products, reviewed and recommended." />
+<meta name="twitter:image" content="/icons/og-cover.jpg" />
+
+<!-- Favicons -->
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<!-- Google Analytics 4
+     Replace G-XXXXXXXXXX below with your real GA4 Measurement ID.
+     Find it in GA4 > Admin > Data Streams > your web stream. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+
 <style>
   :root{
-    --bg:#0d0d0f;
-    --bg-alt:#17171a;
-    --card:#1c1c20;
-    --border:#2a2a2f;
+    --bg:#0b0b0d;
+    --bg-alt:#131316;
+    --card:#18181c;
+    --border:#26262b;
     --orange:#ff7a1a;
+    --orange-light:#ffb066;
     --orange-dark:#e0650a;
-    --text:#f2f2f2;
-    --text-dim:#a0a0a6;
-    --danger:#ff4747;
+    --text:#f3f3f4;
+    --text-dim:#9a9aa2;
+    --radius:16px;
     --success:#2ecc71;
+    --danger:#ff4d4d;
+    --info:#3aa0ff;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
   body{
-    font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background:var(--bg);
     color:var(--text);
+    font-family:'Inter', sans-serif;
     min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    -webkit-font-smoothing:antialiased;
   }
-  a{color:var(--orange);}
-  ::-webkit-scrollbar{width:8px;height:8px;}
+  h1,h2,h3,.logo{font-family:'Poppins', sans-serif;}
+  a{text-decoration:none;color:inherit;}
+  img{max-width:100%;display:block;}
+  ::-webkit-scrollbar{width:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
-  #loadingOverlay{
-    position:fixed;inset:0;
-    background:rgba(10,10,12,0.92);
-    display:flex;align-items:center;justify-content:center;
-    z-index:9999;
-    flex-direction:column;
-    gap:14px;
+  /* ---------- Fade-in on scroll ---------- */
+  .fade-in{
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity .55s ease, transform .55s ease;
   }
-  .spinner{
-    width:48px;height:48px;
-    border:5px solid var(--border);
-    border-top:5px solid var(--orange);
-    border-radius:50%;
-    animation:spin 0.9s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
-  #loadingOverlay p{color:var(--text-dim);font-size:14px;letter-spacing:0.5px;}
-  .hidden{display:none !important;}
+  .fade-in.visible{opacity:1;transform:translateY(0);}
 
-  #loginScreen{
-    min-height:100vh;
-    display:flex;align-items:center;justify-content:center;
-    padding:20px;
+  /* ---------- Header ---------- */
+  header.site-header{
+    position:sticky;
+    top:0;
+    z-index:200;
+    background:rgba(11,11,13,0.85);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
   }
-  .login-box{
-    background:var(--bg-alt);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:48px 36px;
-    text-align:center;
-    max-width:400px;
-    width:100%;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  .header-inner{
+    max-width:1280px;
+    margin:0 auto;
+    padding:18px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
   }
-  .login-box h1{
+  .logo{
     font-size:26px;
-    margin-bottom:6px;
-    background:linear-gradient(135deg,var(--orange),#ffb066);
+    font-weight:800;
+    letter-spacing:0.5px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+  }
+  .logo .dot{color:var(--orange);}
+  .logo-tag{
+    font-size:11px;
+    font-weight:500;
+    color:var(--text-dim);
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-left:6px;
+    display:none;
+  }
+  @media(min-width:640px){.logo-tag{display:inline;}}
+
+  .header-search{
+    flex:1;
+    max-width:460px;
+    min-width:200px;
+    position:relative;
+  }
+  .header-search input{
+    width:100%;
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:12px 16px 12px 42px;
+    border-radius:999px;
+    font-size:14px;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .header-search input:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,122,26,0.15);
+  }
+  .header-search svg{
+    position:absolute;
+    left:15px;top:50%;
+    transform:translateY(-50%);
+    width:17px;height:17px;
+    color:var(--text-dim);
+    pointer-events:none;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    max-width:1280px;
+    margin:0 auto;
+    padding:64px 24px 44px;
+    text-align:center;
+  }
+  .hero h1{
+    font-size:clamp(28px, 5vw, 48px);
+    font-weight:800;
+    line-height:1.15;
+    margin-bottom:14px;
+    letter-spacing:-0.5px;
+  }
+  .hero h1 span{
+    background:linear-gradient(135deg, var(--orange), var(--orange-light));
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
   }
-  .login-box p{color:var(--text-dim);margin-bottom:28px;font-size:14px;}
-  .google-btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:10px;
-    background:#fff;color:#1f1f1f;
-    border:none;
-    padding:12px 22px;
-    border-radius:8px;
-    font-size:15px;
-    font-weight:600;
-    cursor:pointer;
-    width:100%;
-    transition:transform .15s ease, box-shadow .15s ease;
-  }
-  .google-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.35);}
-  .google-btn svg{width:20px;height:20px;}
-
-  #accessDenied{
-    display:none;
-    margin-top:20px;
-    background:rgba(255,71,71,0.1);
-    border:1px solid var(--danger);
-    color:var(--danger);
-    padding:14px;
-    border-radius:8px;
-    font-size:14px;
-  }
-
-  #adminPanel{display:none;min-height:100vh;}
-  header.topbar{
-    background:var(--bg-alt);
-    border-bottom:1px solid var(--border);
-    padding:16px 24px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    flex-wrap:wrap;
-    position:sticky;
-    top:0;
-    z-index:100;
-  }
-  .brand{
-    display:flex;align-items:center;gap:10px;
-    font-size:20px;font-weight:700;
-  }
-  .brand span{color:var(--orange);}
-  .user-info{
-    display:flex;align-items:center;gap:12px;
-    font-size:14px;
+  .hero p{
     color:var(--text-dim);
-  }
-  .user-info strong{color:var(--text);}
-  .btn{
-    border:none;
-    padding:10px 18px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:600;
-    transition:transform .12s ease, opacity .12s ease;
-  }
-  .btn:hover{transform:translateY(-1px);}
-  .btn:active{transform:translateY(0);}
-  .btn-orange{background:var(--orange);color:#111;}
-  .btn-orange:hover{background:var(--orange-dark);}
-  .btn-outline{
-    background:transparent;
-    border:1px solid var(--border);
-    color:var(--text);
-  }
-  .btn-outline:hover{border-color:var(--orange);color:var(--orange);}
-  .btn-danger{background:var(--danger);color:#fff;}
-  .btn-danger:hover{background:#e02f2f;}
-  .btn-small{padding:7px 12px;font-size:13px;}
-
-  main{
-    max-width:1200px;
+    font-size:16.5px;
+    max-width:560px;
     margin:0 auto;
-    padding:28px 20px 60px;
+    line-height:1.65;
   }
 
-  .section-title{
-    font-size:18px;
-    margin-bottom:16px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .section-title::before{
-    content:"";
-    width:4px;height:18px;
-    background:var(--orange);
-    border-radius:2px;
-    display:inline-block;
-  }
-
-  .form-card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:24px;
-    margin-bottom:36px;
-  }
-  .form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:16px;
-  }
-  .form-group{display:flex;flex-direction:column;gap:6px;}
-  .form-group.full{grid-column:1 / -1;}
-  label{font-size:13px;color:var(--text-dim);font-weight:600;}
-  input[type="text"],input[type="url"],textarea{
-    background:var(--bg);
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:10px 12px;
-    border-radius:8px;
-    font-size:14px;
-    outline:none;
-    transition:border-color .15s ease;
-    font-family:inherit;
-  }
-  input:focus,textarea:focus{border-color:var(--orange);}
-  textarea{resize:vertical;min-height:80px;}
-  .form-actions{
-    margin-top:18px;
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-  }
-  #formStatus{font-size:13px;margin-top:10px;display:none;}
-  #formStatus.error{color:var(--danger);}
-  #formStatus.success{color:var(--success);}
-
-  .toolbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:16px;
-    flex-wrap:wrap;
-    margin-bottom:20px;
-  }
-  .search-box{
+  /* ---------- Main / Grid ---------- */
+  main{
     flex:1;
-    min-width:220px;
-    max-width:360px;
-    position:relative;
-  }
-  .search-box input{
+    max-width:1280px;
     width:100%;
-    padding:10px 14px 10px 36px;
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:8px;
-    color:var(--text);
-    font-size:14px;
+    margin:0 auto;
+    padding:10px 24px 70px;
   }
-  .search-box input:focus{outline:none;border-color:var(--orange);}
-  .search-box svg{
-    position:absolute;
-    left:10px;top:50%;
-    transform:translateY(-50%);
-    width:16px;height:16px;
+  .section-heading{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .section-heading h2{
+    font-size:23px;
+    font-weight:700;
+    letter-spacing:-0.3px;
+  }
+  #resultCount{
     color:var(--text-dim);
+    font-size:13.5px;
   }
-  .product-count{color:var(--text-dim);font-size:14px;}
 
   .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-    gap:20px;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:24px;
   }
+
   .product-card{
     background:var(--card);
     border:1px solid var(--border);
-    border-radius:14px;
+    border-radius:var(--radius);
     overflow:hidden;
     display:flex;
     flex-direction:column;
-    transition:border-color .15s ease, transform .15s ease;
+    transition:transform .28s cubic-bezier(.22,1,.36,1), border-color .28s ease, box-shadow .28s ease;
   }
-  .product-card:hover{border-color:var(--orange);transform:translateY(-3px);}
-  .product-image{
+  .product-card:hover{
+    transform:translateY(-7px);
+    border-color:var(--orange);
+    box-shadow:0 18px 44px rgba(255,122,26,0.14);
+  }
+  .card-image{
     width:100%;
-    height:170px;
+    aspect-ratio:1 / 1;
     background:var(--bg-alt);
     overflow:hidden;
+    position:relative;
   }
-  .product-image img{
-    width:100%;height:100%;
+  .card-image img{
+    width:100%;
+    height:100%;
     object-fit:cover;
-    display:block;
+    transition:transform .45s ease;
   }
-  .product-body{
-    padding:16px;
+  .product-card:hover .card-image img{transform:scale(1.07);}
+
+  .card-body{
+    padding:18px;
     display:flex;
     flex-direction:column;
     gap:8px;
     flex:1;
   }
-  .product-body h3{font-size:16px;line-height:1.3;}
-  .product-body p{
-    font-size:13px;
+  .card-body h3{
+    font-size:16px;
+    font-weight:600;
+    line-height:1.35;
+  }
+  .card-body p{
+    font-size:13.5px;
     color:var(--text-dim);
-    line-height:1.5;
+    line-height:1.55;
     flex:1;
     display:-webkit-box;
     -webkit-line-clamp:3;
     -webkit-box-orient:vertical;
     overflow:hidden;
   }
-  .affiliate-link{
-    font-size:13px;
-    word-break:break-all;
-    color:var(--orange);
-    text-decoration:none;
-  }
-  .affiliate-link:hover{text-decoration:underline;}
-  .product-actions{
-    display:flex;
-    gap:10px;
+
+  .buy-btn{
     margin-top:8px;
-  }
-  .product-actions .btn{flex:1;}
-
-  .empty-state{
-    text-align:center;
-    padding:60px 20px;
-    color:var(--text-dim);
-  }
-
-  .modal-overlay{
-    position:fixed;inset:0;
-    background:rgba(0,0,0,0.6);
-    display:none;
+    display:inline-flex;
     align-items:center;
     justify-content:center;
-    padding:20px;
-    z-index:1000;
+    gap:8px;
+    background:linear-gradient(135deg, var(--orange), var(--orange-dark));
+    color:#111;
+    font-weight:700;
+    font-size:14px;
+    padding:12px 16px;
+    border-radius:10px;
+    transition:filter .2s ease, transform .15s ease, box-shadow .2s ease;
+    position:relative;
+    overflow:hidden;
   }
-  .modal-overlay.active{display:flex;}
-  .modal-box{
-    background:var(--bg-alt);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:26px;
-    width:100%;
-    max-width:520px;
-    max-height:90vh;
-    overflow-y:auto;
-  }
-  .modal-box h2{margin-bottom:18px;font-size:19px;}
-  .modal-box .form-grid{grid-template-columns:1fr;}
+  .buy-btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,122,26,0.25);}
+  .buy-btn:active{transform:translateY(0) scale(0.97);}
+  .buy-btn svg{width:16px;height:16px;}
 
-  @media(max-width:700px){
-    .form-grid{grid-template-columns:1fr;}
-    header.topbar{padding:14px 16px;}
-    main{padding:20px 14px 50px;}
-    .toolbar{flex-direction:column;align-items:stretch;}
-    .search-box{max-width:none;}
+  /* ---------- Skeleton Loading ---------- */
+  .skeleton-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:24px;
+  }
+  .skeleton-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .skeleton-img{
+    width:100%;
+    aspect-ratio:1/1;
+    background:linear-gradient(100deg, var(--bg-alt) 30%, #202024 50%, var(--bg-alt) 70%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s ease-in-out infinite;
+  }
+  .skeleton-line{
+    height:12px;
+    border-radius:6px;
+    margin:16px 16px 0;
+    background:linear-gradient(100deg, var(--bg-alt) 30%, #202024 50%, var(--bg-alt) 70%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s ease-in-out infinite;
+  }
+  .skeleton-line.short{width:60%;}
+  .skeleton-line.btn{height:38px;border-radius:10px;margin:16px;}
+  @keyframes shimmer{
+    0%{background-position:200% 0;}
+    100%{background-position:-200% 0;}
+  }
+
+  /* ---------- Empty State ---------- */
+  #emptyState{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    padding:70px 20px;
+    color:var(--text-dim);
+    gap:10px;
+  }
+  #emptyState svg{width:52px;height:52px;color:var(--border);margin-bottom:6px;}
+  #emptyState h3{color:var(--text);font-size:18px;}
+
+  .hidden{display:none !important;}
+
+  /* ---------- Toasts ---------- */
+  #toastContainer{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    left:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:10px;
+    z-index:2000;
+    pointer-events:none;
+  }
+  .toast{
+    pointer-events:auto;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-left:4px solid var(--info);
+    color:var(--text);
+    padding:13px 16px;
+    border-radius:10px;
+    font-size:13.5px;
+    max-width:340px;
+    width:100%;
+    box-shadow:0 12px 30px rgba(0,0,0,0.4);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    animation:toastIn .3s ease forwards;
+  }
+  .toast.success{border-left-color:var(--success);}
+  .toast.error{border-left-color:var(--danger);}
+  .toast.warning{border-left-color:var(--orange);}
+  .toast.leaving{animation:toastOut .25s ease forwards;}
+  @keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes toastOut{to{opacity:0;transform:translateX(20px);}}
+
+  /* ---------- Footer ---------- */
+  footer.site-footer{
+    border-top:1px solid var(--border);
+    background:var(--bg-alt);
+    margin-top:auto;
+  }
+  .footer-inner{
+    max-width:1280px;
+    margin:0 auto;
+    padding:44px 24px 28px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+  .footer-top{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:20px;
+  }
+  .footer-brand .logo{font-size:20px;}
+  .footer-brand p{
+    color:var(--text-dim);
+    font-size:13.5px;
+    margin-top:8px;
+    max-width:340px;
+    line-height:1.6;
+  }
+  .footer-links{
+    display:flex;
+    gap:40px;
+    flex-wrap:wrap;
+  }
+  .footer-col h4{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--text-dim);
+    margin-bottom:12px;
+  }
+  .footer-col a{
+    display:block;
+    font-size:13.5px;
+    color:var(--text);
+    opacity:0.85;
+    margin-bottom:9px;
+    transition:color .15s ease;
+  }
+  .footer-col a:hover{color:var(--orange);opacity:1;}
+  .footer-bottom{
+    border-top:1px solid var(--border);
+    padding-top:18px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .footer-bottom strong{color:var(--orange);}
+
+  @media(max-width:600px){
+    .hero{padding:44px 20px 32px;}
+    .header-inner{padding:14px 16px;}
+    main{padding:6px 16px 50px;}
+    .grid, .skeleton-grid{gap:16px;}
+    #toastContainer{left:12px;right:12px;bottom:12px;align-items:stretch;}
+    .toast{max-width:none;}
   }
 </style>
 </head>
 <body>
 
-<div id="loadingOverlay">
-  <div class="spinner"></div>
-  <p>Loading Draxeliora Admin...</p>
-</div>
-
-<div id="loginScreen" class="hidden">
-  <div class="login-box">
-    <h1>Draxeliora <span>Admin</span></h1>
-    <p>Sign in with your authorized Google account to continue.</p>
-    <button class="google-btn" id="googleLoginBtn">
-      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.6 0-14.2 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.3 26.9 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.3-4.1 5.7l6.6 5.4C41.4 36.4 44 30.8 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
-      Sign in with Google
-    </button>
-    <div id="accessDenied">🚫 Access Denied — this account is not authorized to access the admin panel.</div>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#" class="logo" aria-label="Draxeliora Store home">
+      Draxeliora<span class="dot">.</span>
+      <span class="logo-tag">Store</span>
+    </a>
+    <div class="header-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search products..." aria-label="Search products" />
+    </div>
   </div>
-</div>
+</header>
 
-<div id="adminPanel">
-  <header class="topbar">
-    <div class="brand">Draxeliora <span>Admin</span></div>
-    <div class="user-info">
-      Logged in as <strong id="userEmail"></strong>
-      <button class="btn btn-outline btn-small" id="logoutBtn">Logout</button>
-    </div>
-  </header>
+<section class="hero fade-in">
+  <h1>Curated finds, <span>chosen with care.</span></h1>
+  <p>Explore our hand-picked selection of quality products — every item reviewed and recommended by the Draxeliora team.</p>
+</section>
 
-  <main>
-    <section class="form-card">
-      <h2 class="section-title" id="formTitle">Add New Product</h2>
-      <form id="productForm">
-        <div class="form-grid">
-          <div class="form-group full">
-            <label for="titleInput">Product Title</label>
-            <input type="text" id="titleInput" placeholder="e.g. Wireless Noise-Cancelling Headphones" required />
-          </div>
-          <div class="form-group full">
-            <label for="imageInput">Image URL</label>
-            <input type="url" id="imageInput" placeholder="https://example.com/image.jpg" required />
-          </div>
-          <div class="form-group full">
-            <label for="linkInput">Affiliate Link</label>
-            <input type="url" id="linkInput" placeholder="https://affiliate-link.com/product" required />
-          </div>
-          <div class="form-group full">
-            <label for="descInput">Description</label>
-            <textarea id="descInput" placeholder="Short product description..." required></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn btn-orange" id="submitBtn">Add Product</button>
-          <button type="button" class="btn btn-outline hidden" id="cancelEditBtn">Cancel</button>
-        </div>
-        <div id="formStatus"></div>
-      </form>
-    </section>
-
-    <div class="toolbar">
-      <div class="search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="searchInput" placeholder="Search products..." />
-      </div>
-      <div class="product-count" id="productCount">0 products</div>
-    </div>
-
-    <h2 class="section-title">All Products</h2>
-    <div id="productsLoading" style="display:flex;justify-content:center;padding:40px;">
-      <div class="spinner"></div>
-    </div>
-    <div class="grid hidden" id="productsGrid"></div>
-    <div class="empty-state hidden" id="emptyState">No products found.</div>
-  </main>
-</div>
-
-<div class="modal-overlay" id="editModalOverlay">
-  <div class="modal-box">
-    <h2>Edit Product</h2>
-    <form id="editForm">
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="editTitle">Product Title</label>
-          <input type="text" id="editTitle" required />
-        </div>
-        <div class="form-group">
-          <label for="editImage">Image URL</label>
-          <input type="url" id="editImage" required />
-        </div>
-        <div class="form-group">
-          <label for="editLink">Affiliate Link</label>
-          <input type="url" id="editLink" required />
-        </div>
-        <div class="form-group">
-          <label for="editDesc">Description</label>
-          <textarea id="editDesc" required></textarea>
-        </div>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-orange" id="editSaveBtn">Save Changes</button>
-        <button type="button" class="btn btn-outline" id="editCancelBtn">Cancel</button>
-      </div>
-    </form>
+<main>
+  <div class="section-heading">
+    <h2>Our Products</h2>
+    <span id="resultCount"></span>
   </div>
-</div>
+
+  <div class="skeleton-grid" id="skeletonGrid">
+    <!-- skeleton cards injected by JS -->
+  </div>
+
+  <div id="emptyState">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m-10 0a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4z"/></svg>
+    <h3 id="emptyTitle">No products found</h3>
+    <p id="emptySubtitle">Check back soon — new items are on the way.</p>
+  </div>
+
+  <div class="grid hidden" id="productsGrid"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">Draxeliora<span class="dot">.</span></div>
+        <p>Draxeliora Store curates quality products across every category so you can shop with confidence.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Store</h4>
+          <a href="#">All Products</a>
+          <a href="#">New Arrivals</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About Us</a>
+          <a href="#">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Affiliate Disclosure</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year"></span> Draxeliora Store. All rights reserved.</span>
+      <span>Made with <strong>♥</strong> for great products.</span>
+    </div>
+  </div>
+</footer>
+
+<div id="toastContainer" aria-live="polite"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signOut,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-  import {
     getFirestore,
     collection,
-    addDoc,
-    updateDoc,
-    deleteDoc,
+    onSnapshot,
     doc,
-    onSnapshot
+    getDoc,
+    setDoc,
+    updateDoc,
+    increment,
+    serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
+  // ---------------- Firebase Config (unchanged) ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyAAoCLEj3PCotN_pcsbOXdVteLi4xN0hW8",
     authDomain: "draxeliora-store.firebaseapp.com",
@@ -467,288 +547,207 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
   const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
 
-  const ADMIN_EMAIL = "businessidea100067@gmail.com";
-
-  // Same collection name as index.html — must always match the store page.
+  // Same collection as before — untouched.
   const PRODUCTS_COLLECTION = "products";
+  // New collection, additive only. Does not affect "products" documents.
+  const ANALYTICS_DOC = doc(db, "analytics", "summary");
 
-  const loadingOverlay = document.getElementById("loadingOverlay");
-  const loginScreen = document.getElementById("loginScreen");
-  const adminPanel = document.getElementById("adminPanel");
-  const googleLoginBtn = document.getElementById("googleLoginBtn");
-  const accessDenied = document.getElementById("accessDenied");
-  const userEmailEl = document.getElementById("userEmail");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  const formTitle = document.getElementById("formTitle");
-  const productForm = document.getElementById("productForm");
-  const titleInput = document.getElementById("titleInput");
-  const imageInput = document.getElementById("imageInput");
-  const linkInput = document.getElementById("linkInput");
-  const descInput = document.getElementById("descInput");
-  const submitBtn = document.getElementById("submitBtn");
-  const cancelEditBtn = document.getElementById("cancelEditBtn");
-  const formStatus = document.getElementById("formStatus");
-
-  const searchInput = document.getElementById("searchInput");
-  const productCount = document.getElementById("productCount");
-  const productsGrid = document.getElementById("productsGrid");
-  const productsLoading = document.getElementById("productsLoading");
+  // ---------------- DOM ----------------
+  const skeletonGrid = document.getElementById("skeletonGrid");
   const emptyState = document.getElementById("emptyState");
+  const productsGrid = document.getElementById("productsGrid");
+  const resultCount = document.getElementById("resultCount");
+  const searchInput = document.getElementById("searchInput");
+  const emptyTitle = document.getElementById("emptyTitle");
+  const emptySubtitle = document.getElementById("emptySubtitle");
+  const toastContainer = document.getElementById("toastContainer");
 
-  const editModalOverlay = document.getElementById("editModalOverlay");
-  const editForm = document.getElementById("editForm");
-  const editTitle = document.getElementById("editTitle");
-  const editImage = document.getElementById("editImage");
-  const editLink = document.getElementById("editLink");
-  const editDesc = document.getElementById("editDesc");
-  const editCancelBtn = document.getElementById("editCancelBtn");
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Render skeleton placeholders immediately
+  function renderSkeletons(count = 8) {
+    skeletonGrid.innerHTML = Array.from({ length: count })
+      .map(
+        () => `
+      <div class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+        <div class="skeleton-line btn"></div>
+      </div>`
+      )
+      .join("");
+  }
+  renderSkeletons();
 
   let allProducts = [];
-  let editingId = null;
-  let editingModalId = null;
-  let unsubscribeProducts = null;
+  let hasLoadedOnce = false;
 
-  googleLoginBtn.addEventListener("click", async () => {
-    accessDenied.style.display = "none";
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.error(err);
-      accessDenied.textContent = "⚠️ Sign-in failed: " + err.message;
-      accessDenied.style.display = "block";
+  // Same query pattern as before — no orderBy(), so documents without a
+  // createdAt/timestamp field are never silently excluded.
+  const productsRef = collection(db, PRODUCTS_COLLECTION);
+
+  onSnapshot(
+    productsRef,
+    (snapshot) => {
+      allProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      hasLoadedOnce = true;
+      skeletonGrid.classList.add("hidden");
+      renderProducts();
+    },
+    (err) => {
+      console.error("Firestore error:", err);
+      skeletonGrid.classList.add("hidden");
+      emptyTitle.textContent = "Something went wrong";
+      emptySubtitle.textContent = "We couldn't load products right now. Please try again later.";
+      emptyState.style.display = "flex";
+      showToast("Failed to load products. Please refresh the page.", "error");
     }
-  });
-
-  logoutBtn.addEventListener("click", async () => {
-    if (unsubscribeProducts) {
-      unsubscribeProducts();
-      unsubscribeProducts = null;
-    }
-    await signOut(auth);
-  });
-
-  onAuthStateChanged(auth, (user) => {
-    loadingOverlay.classList.add("hidden");
-
-    if (!user) {
-      loginScreen.classList.remove("hidden");
-      adminPanel.style.display = "none";
-      accessDenied.style.display = "none";
-      return;
-    }
-
-    if (user.email !== ADMIN_EMAIL) {
-      loginScreen.classList.remove("hidden");
-      adminPanel.style.display = "none";
-      accessDenied.textContent = "🚫 Access Denied — this account is not authorized to access the admin panel.";
-      accessDenied.style.display = "block";
-      signOut(auth);
-      return;
-    }
-
-    loginScreen.classList.add("hidden");
-    adminPanel.style.display = "block";
-    userEmailEl.textContent = user.email;
-    listenToProducts();
-  });
-
-  // Reads the "products" collection the exact same way index.html does:
-  // no orderBy(), so documents without a createdAt field are never
-  // silently excluded from the results.
-  function listenToProducts() {
-    productsLoading.style.display = "flex";
-
-    const productsRef = collection(db, PRODUCTS_COLLECTION);
-
-    unsubscribeProducts = onSnapshot(
-      productsRef,
-      (snapshot) => {
-        allProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-        productsLoading.style.display = "none";
-        renderProducts();
-      },
-      (err) => {
-        console.error("Firestore error:", err);
-        productsLoading.style.display = "none";
-        productsGrid.classList.add("hidden");
-        emptyState.classList.remove("hidden");
-        emptyState.textContent = "Error loading products: " + err.message;
-      }
-    );
-  }
+  );
 
   function renderProducts() {
     const term = searchInput.value.trim().toLowerCase();
     const filtered = term
-      ? allProducts.filter(
-          (p) =>
-            (p.title || "").toLowerCase().includes(term) ||
-            (p.description || "").toLowerCase().includes(term)
-        )
+      ? allProducts.filter((p) => (p.title || "").toLowerCase().includes(term))
       : allProducts;
 
-    productCount.textContent = `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`;
+    resultCount.textContent = hasLoadedOnce
+      ? `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`
+      : "";
 
     if (filtered.length === 0) {
       productsGrid.classList.add("hidden");
       productsGrid.innerHTML = "";
-      emptyState.classList.remove("hidden");
-      emptyState.textContent = term ? "No products match your search." : "No products found.";
+      if (term) {
+        emptyTitle.textContent = "No matching products";
+        emptySubtitle.textContent = `We couldn't find anything for "${escapeHtml(searchInput.value.trim())}".`;
+      } else {
+        emptyTitle.textContent = "No products found";
+        emptySubtitle.textContent = "Check back soon — new items are on the way.";
+      }
+      emptyState.style.display = "flex";
       return;
     }
 
-    emptyState.classList.add("hidden");
+    emptyState.style.display = "none";
     productsGrid.classList.remove("hidden");
 
     productsGrid.innerHTML = filtered
       .map(
         (p) => `
-      <div class="product-card" data-id="${p.id}">
-        <div class="product-image">
-          <img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.title)}" loading="lazy" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300/1c1c20/ff7a1a?text=No+Image'" />
+      <article class="product-card fade-in">
+        <div class="card-image">
+          <img
+            src="${escapeAttr(p.image)}"
+            alt="${escapeAttr(p.title)}"
+            loading="lazy"
+            decoding="async"
+            onerror="this.onerror=null;this.src='https://via.placeholder.com/500x500/18181c/ff7a1a?text=Draxeliora'"
+          />
         </div>
-        <div class="product-body">
+        <div class="card-body">
           <h3>${escapeHtml(p.title)}</h3>
           <p>${escapeHtml(p.description)}</p>
-          <a class="affiliate-link" href="${escapeAttr(p.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.link)}</a>
-          <div class="product-actions">
-            <button class="btn btn-outline btn-small edit-btn" data-id="${p.id}">Edit</button>
-            <button class="btn btn-danger btn-small delete-btn" data-id="${p.id}">Delete</button>
-          </div>
+          <a class="buy-btn" href="${escapeAttr(p.link)}" target="_blank" rel="nofollow sponsored noopener noreferrer"
+             aria-label="Buy ${escapeAttr(p.title)} on Amazon"
+             data-id="${p.id}" data-title="${escapeAttr(p.title)}">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v2h10V4H7zM4 8v12a2 2 0 002 2h12a2 2 0 002-2V8H4zm5 4h6v2H9v-2z"/></svg>
+            View on Amazon
+          </a>
         </div>
-      </div>
+      </article>
     `
       )
       .join("");
 
-    document.querySelectorAll(".edit-btn").forEach((btn) => {
-      btn.addEventListener("click", () => openEditModal(btn.dataset.id));
+    document.querySelectorAll(".buy-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        trackClick(btn.dataset.id, btn.dataset.title);
+      });
     });
-    document.querySelectorAll(".delete-btn").forEach((btn) => {
-      btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
-    });
+
+    observeFadeIns();
   }
 
-  searchInput.addEventListener("input", renderProducts);
+  let searchDebounce;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(renderProducts, 150);
+  });
 
-  productForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    setFormStatus("", null);
-    submitBtn.disabled = true;
-    submitBtn.textContent = editingId ? "Saving..." : "Adding...";
-
-    const data = {
-      title: titleInput.value.trim(),
-      image: imageInput.value.trim(),
-      link: linkInput.value.trim(),
-      description: descInput.value.trim()
-    };
-
+  // ---------------- Affiliate Click Tracking ----------------
+  // Fire-and-forget: never blocks or delays the outbound affiliate link.
+  async function trackClick(productId, productTitle) {
     try {
-      if (editingId) {
-        await updateDoc(doc(db, PRODUCTS_COLLECTION, editingId), data);
-        setFormStatus("Product updated successfully.", "success");
+      const snap = await getDoc(ANALYTICS_DOC);
+      if (!snap.exists()) {
+        await setDoc(ANALYTICS_DOC, {
+          totalClicks: 1,
+          clicksByProduct: { [productId]: 1 },
+          lastClickAt: serverTimestamp(),
+          lastClickedProductId: productId,
+          lastClickedProductTitle: productTitle
+        });
       } else {
-        await addDoc(collection(db, PRODUCTS_COLLECTION), data);
-        setFormStatus("Product added successfully.", "success");
+        await updateDoc(ANALYTICS_DOC, {
+          totalClicks: increment(1),
+          [`clicksByProduct.${productId}`]: increment(1),
+          lastClickAt: serverTimestamp(),
+          lastClickedProductId: productId,
+          lastClickedProductTitle: productTitle
+        });
       }
-      resetForm();
     } catch (err) {
-      console.error(err);
-      setFormStatus("Error: " + err.message, "error");
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = editingId ? "Save Changes" : "Add Product";
+      console.error("Click tracking failed:", err);
+      // Silent to the shopper — tracking failures should never block a purchase.
     }
-  });
 
-  cancelEditBtn.addEventListener("click", resetForm);
-
-  function resetForm() {
-    productForm.reset();
-    editingId = null;
-    submitBtn.textContent = "Add Product";
-    cancelEditBtn.classList.add("hidden");
-    formTitle.textContent = "Add New Product";
-  }
-
-  function setFormStatus(msg, type) {
-    formStatus.textContent = msg;
-    formStatus.className = type ? type : "";
-    formStatus.style.display = msg ? "block" : "none";
-    if (msg) {
-      setTimeout(() => {
-        formStatus.style.display = "none";
-      }, 4000);
+    if (typeof gtag === "function") {
+      gtag("event", "affiliate_click", {
+        product_id: productId,
+        product_title: productTitle
+      });
     }
   }
 
-  function openEditModal(id) {
-    const p = allProducts.find((x) => x.id === id);
-    if (!p) return;
-    editingModalId = id;
-    editTitle.value = p.title || "";
-    editImage.value = p.image || "";
-    editLink.value = p.link || "";
-    editDesc.value = p.description || "";
-    editModalOverlay.classList.add("active");
-  }
-
-  editCancelBtn.addEventListener("click", closeEditModal);
-  editModalOverlay.addEventListener("click", (e) => {
-    if (e.target === editModalOverlay) closeEditModal();
-  });
-
-  function closeEditModal() {
-    editModalOverlay.classList.remove("active");
-    editingModalId = null;
-    editForm.reset();
-  }
-
-  editForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!editingModalId) return;
-    const saveBtn = document.getElementById("editSaveBtn");
-    saveBtn.disabled = true;
-    saveBtn.textContent = "Saving...";
-
-    const data = {
-      title: editTitle.value.trim(),
-      image: editImage.value.trim(),
-      link: editLink.value.trim(),
-      description: editDesc.value.trim()
-    };
-
-    try {
-      await updateDoc(doc(db, PRODUCTS_COLLECTION, editingModalId), data);
-      closeEditModal();
-    } catch (err) {
-      console.error(err);
-      alert("Error updating product: " + err.message);
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent = "Save Changes";
+  // ---------------- Scroll fade-in ----------------
+  function observeFadeIns() {
+    const els = document.querySelectorAll(".fade-in:not(.visible)");
+    if (!("IntersectionObserver" in window)) {
+      els.forEach((el) => el.classList.add("visible"));
+      return;
     }
-  });
-
-  async function deleteProduct(id) {
-    if (!confirm("Are you sure you want to delete this product? This cannot be undone.")) return;
-    const card = document.querySelector(`.product-card[data-id="${id}"]`);
-    if (card) card.style.opacity = "0.4";
-    try {
-      await deleteDoc(doc(db, PRODUCTS_COLLECTION, id));
-    } catch (err) {
-      console.error(err);
-      alert("Error deleting product: " + err.message);
-      if (card) card.style.opacity = "1";
-    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    els.forEach((el) => io.observe(el));
   }
+  observeFadeIns();
 
+  // ---------------- Toasts ----------------
+  function showToast(message, type = "info") {
+    const el = document.createElement("div");
+    el.className = `toast ${type}`;
+    el.textContent = message;
+    toastContainer.appendChild(el);
+    setTimeout(() => {
+      el.classList.add("leaving");
+      setTimeout(() => el.remove(), 250);
+    }, 3500);
+  }
+  window.showToast = showToast;
+
+  // ---------------- Helpers ----------------
   function escapeHtml(str) {
     if (!str) return "";
     return String(str)
@@ -758,9 +757,17 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
-
   function escapeAttr(str) {
     return escapeHtml(str);
+  }
+
+  // ---------------- PWA: Service Worker Registration ----------------
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch((err) => {
+        console.warn("Service worker registration failed:", err);
+      });
+    });
   }
 </script>
 </body>
